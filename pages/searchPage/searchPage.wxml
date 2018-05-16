@@ -81,7 +81,7 @@
     <block wx:for-items="{{allProductList}}">
       <view class='productContentView' bindtap="onProductDetail" data-key="{{item}}">
         <view class="productView">
-          <image src="{{item.photoUrl}}" class="productImage" style='height:{{doubleLayoutWidth}}px;'></image>
+          <image src="{{item.photoUrl}}" class="productImage" style='height:{{doubleLayoutHeight}}px;'></image>
           <view class="productInfoView">
             <text class="productText">{{item.goodsName}}</text>
             <text class="priceText">￥{{item.price}}</text>

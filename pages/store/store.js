@@ -1,9 +1,3 @@
-// pages/store/store.js
-// var QQMapWX = require('../../utils/qqmap-wx-jssdk.js');
-// var map = new QQMapWX({
-//   key: '7KFBZ-DM533-AJE3Q-YOEM3-ZLKOS-EGBBL'
-// });
-var amapFile = require('../../utils/amap-wx.js');
 var app = getApp();
 
 Page({
@@ -69,40 +63,6 @@ Page({
       }
       wx.hideLoading();
     });
-  },
-  //计算店铺距离
-  calculateDistance: function (stores) {
-    var that = this;
-
-    for (var i = 0; i < stores.length; i++) {
-      (function (i) {
-        var store = stores[i];
-        map.calculateDistance({
-          to: [{
-            latitude: store.latitude,
-            longitude: store.longitude
-          }],
-          complete: function (res) {
-            console.log(res);
-            // var longDistance = res.result.elements[0].distance;
-
-            store.distance = longDistance
-
-            // if (longDistance >= 1000) {
-            //   var distance = (longDistance / 1000).toFixed(0);
-            //   store.distance = distance + '公里';
-            // } else {
-            //   store.distance = distance + '米';
-            // }
-            that.setData({ storeList: stores });
-
-            if (i == stores.length - 1) {
-              wx.hideLoading();
-            }
-          }
-        })
-      }(i))
-    }
   }
 })
 

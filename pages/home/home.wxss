@@ -195,6 +195,7 @@ page {
   background-color: white;
   margin-left: 5px;
   margin-top: 5px;
+  padding-bottom: 20px;
 }
 
 .productSingleView {
@@ -221,6 +222,7 @@ page {
   display: flex;
   flex-direction: column;
   align-items: center;
+  margin-top: 10px;
   width: 100%;
 }
 

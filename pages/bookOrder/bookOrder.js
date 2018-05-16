@@ -1,7 +1,3 @@
-var QQMapWX = require('../../utils/qqmap-wx-jssdk.js');
-var map = new QQMapWX({
-  key: '7KFBZ-DM533-AJE3Q-YOEM3-ZLKOS-EGBBL'
-});
 var app = getApp();
 
 Page({
@@ -110,7 +106,7 @@ Page({
       balancePrice: parseFloat(that.data.balancePrice).toFixed(2)
     }
 
-    if (that.data.currentStore != null){
+    if (that.data.currentStore != null) {
       order.netPointId = that.data.currentStore.id
     }
 
@@ -152,11 +148,11 @@ Page({
   },
   onShowInputBalance: function () {
     var that = this;
-    that.setData({ isShowMemberRights: 'show', isInputPoint: false, inputDiscountValue: that.data.balancePrice});
-    
-    if (that.data.balancePrice > 0){
-      that.setData({ inputValue: that.data.balancePrice});
-    }else{
+    that.setData({ isShowMemberRights: 'show', isInputPoint: false, inputDiscountValue: that.data.balancePrice });
+
+    if (that.data.balancePrice > 0) {
+      that.setData({ inputValue: that.data.balancePrice });
+    } else {
       that.setData({ inputValue: '' });
     }
   },
@@ -164,9 +160,9 @@ Page({
     var that = this;
     that.setData({ isShowMemberRights: 'show', isInputPoint: true, inputDiscountValue: that.data.pointPrice });
 
-    if (that.data.pointPrice > 0){
-      that.setData({ inputValue: that.data.pointPrice});
-    }else{
+    if (that.data.pointPrice > 0) {
+      that.setData({ inputValue: that.data.pointPrice });
+    } else {
       that.setData({ inputValue: '' });
     }
   },
@@ -323,66 +319,7 @@ Page({
       var store = data.result.content[0];
       that.setData({ currentStore: store, totalStore: data.result.numberOfElements, isShowContent: '' });
       wx.hideLoading();
-
-      // map.calculateDistance({
-      //   to: [{
-      //     latitude: store.latitude,
-      //     longitude: store.longitude
-      //   }],
-      //   complete: function (res) {
-      //     var longDistance = res.result.elements[0].distance;
-
-      //     if (longDistance >= 1000) {
-      //       var distance = (longDistance / 1000).toFixed(0);
-      //       store.distance = distance + '公里';
-      //     } else {
-      //       store.distance = distance + '米';
-      //     }
-      //     that.setData({ currentStore: store });
-      //   }
-      // })
     });
-  },
-  // paySignData: function(data,date){
-  //   var stringA = "appId=" + data.appid + "&nonceStr=" + data.nonce_str + "&package=prepay_id=" + data.prepay_id + "&signType=MD5" + "&timeStamp=" + date;
-
-  //   var stringSignTemp = stringA + "&key=5eef8283dc4c421484229a59449e11c2";
-
-  //   console.log(stringSignTemp);
-
-  //   var sign = app.globalData.MD5.hexMD5(stringSignTemp).toUpperCase();
-
-  //   console.log(sign);
-
-  //   return sign;
-  // },
-  // let options = {
-  //   orderNo: "20150834343434421",
-  //   price: 1,
-  //   jsCode: app.globalData.loginCode,
-  //   isService: false
-  // }
-
-  // app.globalData.request.payOrder(options, function (data) {
-  //   console.log(data);
-  //   var date = String(new Date().getTime()).substr(0, 10);
-
-  //   wx.requestPayment({
-  //     timeStamp: date,
-  //     'nonceStr': data.nonce_str,
-  //     'package': "prepay_id=" + data.prepay_id,
-  //     'signType': 'MD5',
-  //     'paySign': that.paySignData(data,date),
-  //     'success': function (res) {
-  //       console.log(res)
-  //     },
-  //     'fail': function (res) {
-  //       console.log(res)
-  //     },
-  //     'complete': function (res) {
-  //       console.log(res)
-  //     }
-  //   })
-  // })
+  }
 })
 

@@ -22,13 +22,13 @@ Page({
     scrollTop: 0,
     selectAllClass: [],
     selectAllParameter: [],
-    doubleLayoutWidth: 0
+    doubleLayoutHeight: 0
   },
   //--------------页面初始化 加载分类商品参数----------------//
   onLoad: function () {
     var that = this;
 
-    that.setData({ doubleLayoutWidth: app.globalData.doubleLayoutWidth});
+    that.setData({ doubleLayoutHeight: app.globalData.doubleLayoutHeight});
 
     var historyKeywords = wx.getStorageSync(app.globalData.historySearchWords);
     if (historyKeywords.length > 0) {

@@ -153,7 +153,7 @@ page {
   background-color: white;
 }
 
-.cartButton {
+.leftBottomView {
   display: flex;
   flex-flow: row;
   justify-content: center;
@@ -162,8 +162,16 @@ page {
   height: 100%;
 }
 
-.cartImage {
+.cartBottomView{
+  display: flex;
+  justify-content: center;
+  align-items: center;
   flex: 1;
+  width: 32px;
+  height: 100%;
+}
+
+.cartImage {
   width: 32px;
   height: 22px;
 }

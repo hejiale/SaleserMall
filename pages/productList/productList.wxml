@@ -5,7 +5,7 @@
       <block wx:for-items="{{templateObject.productBeans}}">
         <view class='productContentView' bindtap='onGoodsDetail' data-key='{{item}}' wx:if="{{templateObject.layout == '2'}}">
           <view class="productView">
-            <image src="{{item.picture}}" class="productImage" bindtap="onProductDetail" data-key="{{item}}" style='height:{{doubleLayoutWidth}}px;' wx:if="{{item.picture != null}}"></image>
+            <image src="{{item.picture}}" class="productImage" bindtap="onProductDetail" data-key="{{item}}" style='height:{{doubleLayoutHeight}}px;' wx:if="{{item.picture != null}}"></image>
             <view class="productInfoView">
               <text class="productText">{{item.goodsName}}</text>
               <text class="priceText">￥{{item.price}}</text>
@@ -13,7 +13,7 @@
           </view>
         </view>
         <view class="productSingleView" bindtap='onGoodsDetail' data-key='{{item}}' wx:else>
-          <image src="{{item.picture}}" class="productSingleImage" bindtap="onProductDetail" data-key="{{item}}" style='height:{{doubleLayoutWidth}}px;'></image>
+          <image src="{{item.picture}}" class="productSingleImage" bindtap="onProductDetail" data-key="{{item}}" style='height:{{doubleLayoutHeight}}px;'></image>
           <view class="productSingleInfoView">
             <text class="productSingleText">{{item.goodsName}}</text>
             <text class="priceSingleText">￥{{item.price}}</text>

@@ -8,9 +8,9 @@
 		"newFeature": true
 	},
 	"compileType": "miniprogram",
-	"libVersion": "1.9.94",
-	"appid": "wx59f8055b3b0422a4",
-	"projectname": "%E5%86%B0%E7%82%B9%E4%BA%91%E5%BE%AE%E5%95%86%E5%9F%8E",
+	"libVersion": "1.9.9",
+	"appid": "wx5b154126263c8ae8",
+	"projectname": "%E5%86%B0%E7%82%B9%E4%BA%91",
 	"svr": "",
 	"client": "",
 	"qcloudRoot": "",

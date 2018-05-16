@@ -88,9 +88,11 @@
     </view>
   </view>
   <view class="footView">
-    <view class="cartButton">
+    <view class="leftBottomView">
       <image class='phoneImage' src='../images/productDetail_phone@2x.png' mode="aspectFit" bindtap='onCall'></image>
-      <image class="cartImage" src="../images/productDetail_cart@2x.png" mode="aspectFit" bindtap='onToCart'></image>
+      <view class='cartBottomView' bindtap='onToCart'>
+        <image class="cartImage" src="../images/productDetail_cart@2x.png" mode="aspectFit"></image>
+      </view>
     </view>
     <view class="addCartButton" bindtap='onCart'>
       <text class='addCartText'>加入购物车</text>

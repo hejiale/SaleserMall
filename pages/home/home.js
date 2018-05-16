@@ -3,7 +3,7 @@ var app = getApp()
 
 Page({
   data: {
-    classList: [{ typeName: '精选' }],
+    classList: [],
     isShowClassView: 'hide',
     isShowProductListView: 'hide',
     isShowTemplateView: 'show',
@@ -12,15 +12,15 @@ Page({
     currentType: "精选",
     currentPage: 1,
     pageSize: 20,
-    singleLayoutWidth: 0,
-    doubleLayoutWidth: 0,
+    singleLayoutHeight: 0,
+    doubleLayoutHeight: 0,
     deviceWidth: 0,
     scrollLeft: 0,
     isShowEmpty: 'hide'
   },
   onLoad: function (options) {
     var that = this;
-    that.setData({ singleLayoutWidth: app.globalData.singleLayoutWidth, doubleLayoutWidth: app.globalData.doubleLayoutWidth })
+    that.setData({ singleLayoutHeight: app.globalData.singleLayoutHeight, doubleLayoutHeight: app.globalData.doubleLayoutHeight })
 
     app.getSystemInfo(function (systemInfo) {
       that.setData({
@@ -42,17 +42,38 @@ Page({
   onCloseClassCover: function () {
     this.setData({ isShowClassView: 'hide' });
   },
+  //选择类目
   onClassItemClicked: function (e) {
+    console.log(e)
+
     var that = this;
     var item = e.currentTarget.dataset.key;
 
     that.setData({ scrollLeft: e.currentTarget.offsetLeft });
     that.chooseClassItem(item);
   },
-  onCoverItemClicked: function (e) {
+  onClassItemClicked2: function (e) {
+    console.log(e)
+
     var that = this;
     var item = e.currentTarget.dataset.key;
     that.chooseClassItem(item);
+
+    //创建节点查询器 query
+    var query = wx.createSelectorQuery()
+    query.select('#classOutItem-' + item.typeId).boundingClientRect(function (rect) {
+      console.log(rect)
+
+      if (rect != null) {
+        if (rect.left < 0) {
+          that.setData({ scrollLeft: 0 });
+        } else {
+          that.setData({ scrollLeft: rect.left });
+        }
+      } else {
+        that.setData({ scrollLeft: 0 });
+      }
+    }).exec()
   },
   //选择类目
   chooseClassItem: function (item) {
@@ -76,7 +97,6 @@ Page({
     wx.navigateTo({
       url: '../productList/productList',
     })
-
   },
   onGoodsDetail: function (e) {
     var that = this;

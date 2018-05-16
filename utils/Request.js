@@ -1,4 +1,6 @@
+//正式环境地址
 var HostURL = 'https://icepointcloud.com';
+//正式环境端口
 var port = '/wechat/api/mall';
 var sessionId = null;
 

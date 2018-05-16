@@ -3,13 +3,10 @@ var request = require('utils/Request.js')
 var MD5 = require('utils/md5.js')
 
 App({
-  onLaunch: function () {
-    var that = this
+  onLaunch: function (options) {
+    console.log(options);
 
-    that.getSystemInfo(function (systemInfo) {
-      that.globalData.singleLayoutWidth = ((systemInfo.windowWidth * 0.8 * 9) / 16);
-      that.globalData.doubleLayoutWidth = ((systemInfo.windowWidth * 0.5 * 0.8 * 9) / 16);
-    })
+    this.getImageAutoHeight();
   },
   //获取设备信息
   getSystemInfo: function (cb) {
@@ -29,7 +26,7 @@ App({
   userLogin: function (cb) {
     var that = this;
 
-    let appId = "wx88733d8309af5807";//(冰点云公众号)
+    let appId = that.globalData.wechatId;
 
     wx.login({
       success: function (res) {
@@ -67,7 +64,7 @@ App({
   getCompanyInfo: function (cb) {
     var that = this;
 
-    let appId = "wx88733d8309af5807";//(冰点云公众号)
+    let appId = that.globalData.wechatId;
 
     let options = {
       appid: appId,//公众号id 
@@ -83,6 +80,15 @@ App({
       that.globalData.belongCompany = data.result;
       typeof cb == "function" && cb();
     });
+  },
+  //获取商品图片预加载高度
+  getImageAutoHeight: function () {
+    var that = this
+
+    that.getSystemInfo(function (systemInfo) {
+      that.globalData.singleLayoutHeight = ((systemInfo.windowWidth * 0.8 * 9) / 16);
+      that.globalData.doubleLayoutHeight = ((systemInfo.windowWidth * 0.5 * 0.8 * 9) / 16);
+    })
   },
   globalData: {
     //微信登录用户信息
@@ -104,9 +110,11 @@ App({
     //专场详情object
     templateObject: null,
     //商品双排 单排高度
-    singleLayoutWidth: 0,
-    doubleLayoutWidth: 0,
+    singleLayoutHeight: 0,
+    doubleLayoutHeight: 0,
     //公众号key
-    wechatAppId:'b2qux4BoxIrHE6VFqg54VHKtwAbZ02wwYfdXhKQZH+A='
+    wechatAppId: 'b2qux4BoxIrHE6VFqg54VHKtwAbZ02wwYfdXhKQZH+A=',
+    //公众号id (冰点云公众号)
+    wechatId: 'wx88733d8309af5807',
   }
 })
