@@ -1,10 +1,11 @@
 // pages/person/address/address.js
+var request = require('../../utils/Request.js')
+var Login = require('../../utils/Login.js')
 var app = getApp();
 
 Page({
   data: {
-    addressList: null,
-    orderSelectAddressId: null
+    
   },
 
   onLoad: function (options) {
@@ -14,10 +15,10 @@ Page({
   onShow: function () {
     var that = this;
 
-    app.valityLogigStatus(function (e) {
+    Login.valityLogigStatus(function (e) {
       if (e == false) {
-        app.userLogin(function () {
-          if (app.globalData.customer != null) {
+        Login.userLogin(function (customer) {
+          if (customer != null) {
             that.queryAddressList();
           } else {
             wx.navigateTo({
@@ -34,7 +35,7 @@ Page({
     var that = this;
     var item = e.currentTarget.dataset.key;
 
-    app.globalData.request.setDefaultAddress({ userAddressId: item.id }, function (data) {
+    request.setDefaultAddress({ userAddressId: item.id }, function (data) {
       that.queryAddressList();
     });
   },
@@ -58,7 +59,7 @@ Page({
       return;
     }
 
-    app.globalData.request.deleteAddress({ userAddressId: item.id }, function (data) {
+    request.deleteAddress({ userAddressId: item.id }, function (data) {
       that.queryAddressList();
     });
   },
@@ -75,7 +76,7 @@ Page({
     var prevPage = pages[pages.length - 2]  //上一个页面
 
     prevPage.setData({
-      selectAddressId: item.id
+      currentAddress: item
     })
     wx.navigateBack()
   },
@@ -89,7 +90,7 @@ Page({
 
     wx.showLoading({});
 
-    app.globalData.request.queryAddressList(options, function (data) {
+    request.queryAddressList(options, function (data) {
       that.setData({ addressList: data.result.resultList });
       wx.hideLoading();
     });

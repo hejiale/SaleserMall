@@ -1,7 +1,7 @@
 {
 	"description": "项目配置文件。",
 	"setting": {
-		"urlCheck": true,
+		"urlCheck": false,
 		"es6": true,
 		"postcss": true,
 		"minified": true,
@@ -9,8 +9,8 @@
 	},
 	"compileType": "miniprogram",
 	"libVersion": "1.9.9",
-	"appid": "wx5b154126263c8ae8",
-	"projectname": "%E5%86%B0%E7%82%B9%E4%BA%91",
+	"appid": "wx6703326230ba4ecd",
+	"projectname": "MallTest",
 	"svr": "",
 	"client": "",
 	"qcloudRoot": "",
@@ -46,6 +46,20 @@
 					"name": "微商城主页 ",
 					"pathName": "pages/home/home",
 					"query": ""
+				},
+				{
+					"id": 2,
+					"name": "专场详情页面",
+					"pathName": "pages/productList/productList",
+					"query": "id=273",
+					"scene": "1007"
+				},
+				{
+					"id": -1,
+					"name": "商品详情页面",
+					"pathName": "pages/productDetail/productDetail",
+					"query": "id=50",
+					"scene": "1007"
 				}
 			]
 		}

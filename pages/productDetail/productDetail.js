@@ -1,23 +1,16 @@
 // pages/productDetail/productDetail.js
-
 var WxParse = require('../../wxParse/wxParse.js');
+var Login = require('../../utils/Login.js')
+var Config = require('../../utils/Config.js')
 var app = getApp();
+var request = require('../../utils/Request.js')
 
 Page({
   data: {
-    DetailObject: null,
     isSelectDetail: true,
-    showParameterView: 'hide',
-    goodsId: null,
-    deviceWidth: 0,
-    deviceHeight: 0,
-    parameterObject: null,
     selectParameters: [],
-    parameterPrice: null,
     cartNum: 1,
-    isToOrder: false,
-    tryGlassToOrder: false,
-    isFirstShowParameter:true
+    isFirstShowParameter: true,
   },
   onLoad: function (options) {
     var that = this;
@@ -25,8 +18,8 @@ Page({
 
     let parameter = { goodsId: options.id };
 
-    app.globalData.request.queryProductDetail(parameter, function (data) {
-      WxParse.wxParse('article', 'html', data.goods.goodsTextDetails, that, 5);
+    request.queryProductDetail(parameter, function (data) {
+      WxParse.wxParse('article', 'html', data.goods.goodsTextDetails, that, 0);
       that.setData({ DetailObject: data });
     })
 
@@ -37,27 +30,34 @@ Page({
       })
     })
   },
-  onShow: function () {
+  onShow: function (res) {
     var that = this;
 
     if (that.data.tryGlassToOrder) {
       that.setData({ tryGlassToOrder: false });
       that.onBook();
     }
+    //查询购物车数量
+    that.queryCartCount();
+
+    var pages = getCurrentPages();
+    if (pages.length == 1) {
+      that.setData({ isFromShare: true });
+    }
   },
   onBook: function (event) {
     var that = this;
 
     wx.showLoading({});
-    app.valityLogigStatus(function (e) {
+    Login.valityLogigStatus(function (e) {
       if (e == false) {
-        app.userLogin(function () {
-          if (app.globalData.customer != null) {
+        Login.userLogin(function (customer) {
+          if (customer != null) {
             that.setData({ isToOrder: true });
             that.queryParameterRequest();
           } else {
             wx.hideLoading();
-            
+
             wx.navigateTo({
               url: '../bindPhone/bindPhone',
             })
@@ -86,10 +86,10 @@ Page({
     var that = this;
 
     wx.showLoading({});
-    app.valityLogigStatus(function (e) {
+    Login.valityLogigStatus(function (e) {
       if (e == false) {
-        app.userLogin(function () {
-          if (app.globalData.customer != null) {
+        Login.userLogin(function (customer) {
+          if (customer != null) {
             that.setData({ isToOrder: false });
             that.queryParameterRequest();
           } else {
@@ -107,10 +107,10 @@ Page({
     })
   },
   onToCart: function () {
-    app.valityLogigStatus(function (e) {
+    Login.valityLogigStatus(function (e) {
       if (e == false) {
-        app.userLogin(function () {
-          if (app.globalData.customer != null) {
+        Login.userLogin(function (customer) {
+          if (customer != null) {
             wx.navigateTo({
               url: '../cart/cart',
             })
@@ -160,14 +160,15 @@ Page({
       cart.goodsId = that.data.goodsId;
     }
 
-    app.globalData.request.addShoppingCart(cart, function (data) {
+    request.addShoppingCart(cart, function (data) {
       if (data.retCode >= 301 && data.retCode <= 305) {
         wx.showToast({
           title: data.retMsg,
           icon: "none"
         })
       } else {
-        that.setData({ showParameterView: 'hide', parameterObject: null, cartNum: 1, selectParameters: [], isFirstShowParameter: true });
+        that.setData({ showParameterView: false, parameterObject: null, cartNum: 1, selectParameters: [], isFirstShowParameter: true });
+        that.queryCartCountRequest();
 
         wx.showToast({
           title: '加入购物车成功!'
@@ -178,9 +179,9 @@ Page({
   addProductToOrder: function () {
     var that = this;
 
-    app.globalData.orderProducts = that.bindOrderProduct();
+    Config.Config.orderProducts = that.bindOrderProduct();
 
-    that.setData({ showParameterView: 'hide', parameterObject: null, cartNum: 1, selectParameters: [], isFirstShowParameter: true });
+    that.setData({ showParameterView: false, parameterObject: null, cartNum: 1, selectParameters: [], isFirstShowParameter: true });
 
     wx.navigateTo({
       url: '../bookOrder/bookOrder?isFromCart=0',
@@ -239,7 +240,7 @@ Page({
   },
   onCoverClick: function () {
     var that = this;
-    that.setData({ showParameterView: 'hide', parameterObject: null, cartNum: 1, selectParameters: [], isFirstShowParameter:true });
+    that.setData({ showParameterView: false, parameterObject: null, cartNum: 1, selectParameters: [], isFirstShowParameter: true });
   },
   //点击商品规格参数method
   onSelectParameter: function (e) {
@@ -270,6 +271,14 @@ Page({
       that.queryParameterRequest();
     }
   },
+  //返回首页
+  onToHomePage: function () {
+    app.globalData.menuScene = null;
+
+    wx.reLaunch({
+      url: '../home/home'
+    })
+  },
   //查询商品规格参数请求
   queryParameterRequest: function () {
     var that = this;
@@ -287,7 +296,7 @@ Page({
       options.specificationsModels = array;
     }
 
-    app.globalData.request.queryProductDetailParameter(JSON.stringify(options), function (data) {
+    request.queryProductDetailParameter(JSON.stringify(options), function (data) {
 
       if (data.price) {
         that.setData({ parameterPrice: data.price });
@@ -295,7 +304,7 @@ Page({
         that.setData({ parameterPrice: that.data.DetailObject.goods.goodsRetailPrice });
       }
 
-      if (that.data.isFirstShowParameter){
+      if (that.data.isFirstShowParameter && data.specifications) {
         for (var i = 0; i < data.specifications.length; i++) {
           var specification = data.specifications[i];
           var selectNum = 0;
@@ -315,9 +324,9 @@ Page({
             }
           }
         }
-        that.setData({ isFirstShowParameter: false});
+        that.setData({ isFirstShowParameter: false });
       }
-    
+
       for (var z = 0; z < that.data.selectParameters.length; z++) {
         var selectParameter = that.data.selectParameters[z];
         for (var i = 0; i < data.specifications.length; i++) {
@@ -330,8 +339,47 @@ Page({
           }
         }
       }
-      that.setData({ parameterObject: data, showParameterView: '' });
+      that.setData({ parameterObject: data, showParameterView: true });
       wx.hideLoading();
     })
+  },
+  //查询购物车数量
+  queryCartCount: function () {
+    var that = this;
+
+    Login.valityLogigStatus(function (e) {
+      if (e == false) {
+        Login.userLogin(function (customer) {
+          if (customer != null) {
+            that.queryCartCountRequest();
+          } else {
+            wx.hideLoading();
+
+            wx.navigateTo({
+              url: '../bindPhone/bindPhone',
+            })
+          }
+        });
+      } else {
+        that.queryCartCountRequest();
+      }
+    })
+  },
+  queryCartCountRequest: function () {
+    var that = this;
+
+    request.queryCartCount(function (data) {
+      that.setData({ cartCount: data.result });
+    });
+  },
+  //转发
+  onShareAppMessage: function (res) {
+    console.log(res.target)
+
+    var that = this;
+    return {
+      title: that.data.DetailObject.goods.goodsName,
+      path: '/pages/productDetail/productDetail?id=' + that.data.goodsId
+    }
   }
 })

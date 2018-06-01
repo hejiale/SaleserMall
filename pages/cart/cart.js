@@ -1,11 +1,11 @@
 // pages/cart/cart.js
+var request = require('../../utils/Request.js')
+var Config = require('../../utils/Config.js')
 var app = getApp();
 
 Page({
   data: {
-    cartList: null,
-    canEdit: false,
-    totalPrice: null
+   
   },
   onShow: function () {
     var that = this;
@@ -84,11 +84,7 @@ Page({
         }
       }
 
-      console.log(JSON.stringify(parameterList));
-
-      app.globalData.request.valityCartStock(JSON.stringify(parameterList), function (data) {
-        // var isCanOrder = true;
-
+      request.valityCartStock(JSON.stringify(parameterList), function (data) {
         for (var i = 0; i < data.result.length; i++) {
           var item = data.result[i];
           if (item.retCode != 200) {
@@ -106,7 +102,7 @@ Page({
           }
         }
 
-        app.globalData.orderProducts = productList;
+        Config.Config.orderProducts = productList;
 
         wx.navigateTo({
           url: '../bookOrder/bookOrder?isFromCart=1'
@@ -118,16 +114,16 @@ Page({
   onCleanCart: function () {
     var that = this;
 
-    app.globalData.request.clearCart(function (data) {
+    request.clearCart(function (data) {
       that.queryCartList();
     });
   },
   //查询购物车列表
   queryCartList: function () {
     var that = this;
-    wx.showLoading();
+    // wx.showLoading();
 
-    app.globalData.request.queryCartList(function (data) {
+    request.queryCartList(function (data) {
       if (data.result != null) {
         if (data.result.length > 0) {
           for (var i = 0; i < data.result.length; i++) {
@@ -167,7 +163,7 @@ Page({
       cartId: cartId,
       count: count
     };
-    app.globalData.request.updateCart(options, function (data) {
+    request.updateCart(options, function (data) {
       if (data.retCode == 305) {
         wx.showModal({
           showCancel: false,

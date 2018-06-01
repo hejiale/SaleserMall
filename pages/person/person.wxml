@@ -1,5 +1,6 @@
 <view class="page">
-  <view class="personView">
+<web-view src="{{personLinkURL}}" bindmessage="bindGetMsg"></web-view>
+  <!-- <view class="personView">
     <view class='topCoverView'></view>
     <view class="headView">
       <view class="photo_wrap">
@@ -70,5 +71,5 @@
         <image src="../images/icon_arrow@2x.png" class="arrowImage"></image>
       </navigator>
     </view>
-  </view>
+  </view> -->
 </view>

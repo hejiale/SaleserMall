@@ -1,27 +1,31 @@
 // pages/person/person.js
+var Login = require('../../utils/Login.js')
 var app = getApp();
 
 Page({
   data: {
-    userInfo: null,
-    memberCustomer: null
+    personLinkURL:'https://icepointcloud.com/wechat/user/userInfo.html?key='
   },
   onLoad: function () {
     var that = this;
 
-    wx.showLoading()
+    that.setData({ personLinkURL: that.data.personLinkURL + encodeURIComponent(Login.ConfigData.wechatAppKey) + '&from=mini'});
 
-    app.getUserInfo(function (userInfo) {
-      that.setData({
-        userInfo: userInfo
-      })
-    })
+    console.log(that.data.personLinkURL);
 
-    app.userLogin(function () {
-      that.setData({
-        memberCustomer: app.globalData.customer
-      })
-      wx.hideLoading();
-    })
+    // wx.showLoading()
+
+    // app.getUserInfo(function (userInfo) {
+    //   that.setData({
+    //     userInfo: userInfo
+    //   })
+    // })
+
+    // app.userLogin(function () {
+    //   that.setData({
+    //     memberCustomer: app.globalData.customer
+    //   })
+    //   wx.hideLoading();
+    // })
   }
 })

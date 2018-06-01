@@ -1,11 +1,3 @@
-/* pages/bindPhone/bindPhone.wxss */
-
-/* pages/bindPhone/bindPhone.wxss */
-
-page {
-  background-color: #fbf9fe;
-  height: 100%;
-}
 
 .contentView {
   position: fixed;

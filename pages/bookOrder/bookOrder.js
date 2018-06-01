@@ -1,31 +1,31 @@
+var MapLocation = require('../../utils/MapLocation.js')
+var StoreRequest = require('../../utils/StoreRequest.js')
+var request = require('../../utils/Request.js')
+var Login = require('../../utils/Login.js')
+var Config = require('../../utils/Config.js')
+var Wechat = require('../../utils/Wechat.js')
 var app = getApp();
 
 Page({
   data: {
     productList: [],
-    isShowMemberRights: 'hide',
-    isShowContent: 'hide',
-    isExtractEmail: 'show',
-    isExtractSelf: 'hide',
-    //自提或邮寄标签判定是否选择地址选项
-    isShowStore: '',
-    currentAddress: null,
-    selectAddressId: null,
-    totalPrice: 0,
-    shouldPayPrice: 0,
-    memberInfo: null,
-    discountPrice: 0,
-    balancePrice: 0,
-    pointPrice: 0,
-    isInputPoint: false,
-    //当前输入折扣抵扣金额
-    inputDiscountValue: 0,
-    inputValue: '',
-    useBalance: 0,
-    usePoint: 0,
-    isFromCart: false,
-    currentStore: null,
-    totalStore: 0
+    pickUpStyle: [],
+    //下单信息
+    payInfo: {
+      totalPrice: 0,
+      shouldPayPrice: 0,
+      discountPrice: 0,
+      balancePrice: 0,
+      pointPrice: 0,
+      //当前剩余应付金额
+      inputShouldPrice: 0,
+      inputValue: '',
+      inputPointPrice: 0,
+      useBalance: 0,
+      usePoint: 0,
+      //按钮status
+      canPayStaus: true
+    }
   },
   onLoad: function (options) {
     var that = this;
@@ -33,28 +33,28 @@ Page({
 
     wx.showLoading();
     //获取会员信息
-    app.globalData.request.getMemberInfo(function (data) {
-      that.setData({ memberInfo: data.result });
+    request.getMemberInfo(function (data) {
+      that.setData({ 'payInfo.memberInfo': data.result });
       //处理商品数据
-      that.setData({ productList: app.globalData.orderProducts });
+      that.setData({ productList: Config.Config.orderProducts });
       that.getCartTotalPrice();
     });
 
     //获取客户默认地址
-    app.globalData.request.getDefaultAddress(function (data) {
-      that.setData({ currentAddress: data.result, selectAddressId: data.result.id });
+    request.getDefaultAddress(function (data) {
+      that.setData({ currentAddress: data.result, preAddress: data.result.region + data.result.address });
+      //获取提货方式
+      request.queryPickupStatus(function (data) {
+        that.setData({ pickUpStyle: data.result, pickUp: data.result[0] });
+        that.queryStoreList();
+      });
     });
-
-    //获取门店
-    that.queryStoreList();
   },
   onShow: function () {
     var that = this;
-
-    if (that.data.selectAddressId) {
-      app.globalData.request.getDetailAddress({ userAddressId: that.data.selectAddressId }, function (data) {
-        that.setData({ currentAddress: data.result });
-      });
+    if (that.data.isShowContent && that.data.preAddress != (that.data.currentAddress.region + that.data.currentAddress.address)) {
+      that.setData({ preAddress: (that.data.currentAddress.region + that.data.currentAddress.address) });
+      that.queryStoreList();
     }
   },
   onSelectAddress: function () {
@@ -71,9 +71,18 @@ Page({
     }
   },
   onSelectStore: function () {
-    wx.navigateTo({
-      url: '../store/store',
-    })
+    var that = this;
+
+    //邮寄传送货地址
+    if (that.data.pickUp == 'MAIL') {
+      wx.navigateTo({
+        url: '../store/store?address=' + that.data.currentAddress.region + that.data.currentAddress.address,
+      })
+    } else {
+      wx.navigateTo({
+        url: '../store/store',
+      })
+    }
   },
   onCall: function () {
     var that = this;
@@ -83,10 +92,10 @@ Page({
     })
   },
   //下单
-  offerOrder: function () {
+  onOfferOrder: function () {
     var that = this;
 
-    if (that.data.selectAddressId == null) {
+    if (that.data.currentAddress == null) {
       wx.showToast({
         title: '请选择联系人信息!',
         icon: 'none'
@@ -95,15 +104,15 @@ Page({
     }
 
     var order = {
-      pickUpGoodsType: "PICK_UP_IN_A_STORE",
-      addressId: that.data.selectAddressId,
-      amountPayable: parseFloat(that.data.shouldPayPrice).toFixed(2),
-      discount: that.data.memberInfo.mallCustomer.discount,
-      discountPrice: parseFloat(that.data.discountPrice).toFixed(2),
-      integral: that.data.usePoint,
-      integralPrice: that.data.pointPrice,
-      balance: parseFloat(that.data.useBalance).toFixed(2),
-      balancePrice: parseFloat(that.data.balancePrice).toFixed(2)
+      pickUpGoodsType: that.data.pickUp,
+      addressId: that.data.currentAddress.id,
+      amountPayable: parseFloat(that.data.payInfo.shouldPayPrice).toFixed(2),
+      discount: that.data.payInfo.memberInfo.mallCustomer.discount,
+      discountPrice: parseFloat(that.data.payInfo.discountPrice).toFixed(2),
+      integral: that.data.payInfo.usePoint,
+      integralPrice: that.data.payInfo.pointPrice,
+      balance: parseFloat(that.data.payInfo.useBalance).toFixed(2),
+      balancePrice: parseFloat(that.data.payInfo.balancePrice).toFixed(2)
     }
 
     if (that.data.currentStore != null) {
@@ -135,148 +144,215 @@ Page({
       }
     }
     orderParameter.goodsOrders = products;
+    orderParameter.cartIds = carts;
 
-    app.valityLogigStatus(function (e) {
+    Login.valityLogigStatus(function (e) {
       if (e == false) {
-        app.userLogin(function () {
-          that.offerOrderRequest(orderParameter);
+        Login.userLogin(function (customer) {
+          if (customer) {
+            that.offerOrderRequest(orderParameter);
+          }
         });
       } else {
-        that.offerOrderRequest(orderParameter, carts);
+        that.offerOrderRequest(orderParameter);
       }
     })
   },
+  //show 输入储值余额 积分
   onShowInputBalance: function () {
     var that = this;
-    that.setData({ isShowMemberRights: 'show', isInputPoint: false, inputDiscountValue: that.data.balancePrice });
+    that.setData({
+      isShowMemberRights: true,
+      'payInfo.isInputPoint': false,
+      'payInfo.inputShouldPrice': that.data.payInfo.shouldPayPrice
+    });
 
-    if (that.data.balancePrice > 0) {
-      that.setData({ inputValue: that.data.balancePrice });
+    if (that.data.payInfo.useBalance > 0) {
+      that.setData({ 'payInfo.inputValue': that.data.payInfo.useBalance });
     } else {
-      that.setData({ inputValue: '' });
+      that.setData({ 'payInfo.inputValue': '' });
     }
+
+    that.setData({
+      'payInfo.overcapStatus': false,
+      'payInfo.upBalanceStatus': false,
+      'payInfo.canPayStaus': true
+    })
   },
   onShowInputPoint: function () {
     var that = this;
-    that.setData({ isShowMemberRights: 'show', isInputPoint: true, inputDiscountValue: that.data.pointPrice });
+    that.setData({
+      isShowMemberRights: true,
+      'payInfo.isInputPoint': true,
+      'payInfo.inputShouldPrice': that.data.payInfo.shouldPayPrice
+    });
 
-    if (that.data.pointPrice > 0) {
-      that.setData({ inputValue: that.data.pointPrice });
+    if (that.data.payInfo.usePoint > 0) {
+      that.setData({
+        'payInfo.inputValue': that.data.payInfo.usePoint,
+        'payInfo.inputPointPrice': that.data.payInfo.pointPrice
+      });
     } else {
-      that.setData({ inputValue: '' });
+      that.setData({ 'payInfo.inputValue': '' });
     }
+
+    that.setData({
+      'payInfo.overcapStatus': false,
+      'payInfo.upBalanceStatus': false,
+      'payInfo.canPayStaus': true
+    })
   },
   onCoverClicked: function (e) {
-    this.setData({ isShowMemberRights: 'hide' });
+    this.setData({ isShowMemberRights: false });
   },
-  onExtractEmail: function () {
-    this.setData({ isExtractEmail: 'hide' });
-    this.setData({ isExtractSelf: 'show' });
-    this.setData({ isShowStore: '' });
+  //切换提货方式
+  onExtractStyle: function () {
+    var that = this;
+    if (that.data.pickUp == 'MAIL') {
+      that.setData({ pickUp: 'PICK_UP_IN_A_STORE' });
+    } else {
+      that.setData({ pickUp: 'MAIL' });
+    }
+
+    wx.showLoading();
+    that.queryStoreList();
   },
-  onExtractSelf: function () {
-    this.setData({ isExtractSelf: 'hide' });
-    this.setData({ isExtractEmail: 'show' });
-    this.setData({ isShowStore: 'hide' });
-  },
-  discountTextInput: function (event) {
+  //会员权益 积分储值输入框操作
+  textFieldInput: function (event) {
+    console.log(event);
     var that = this;
     var str = event.detail.value;
+    var isCan = false;
+
+    that.setData({
+      'payInfo.overcapStatus': false,
+      'payInfo.upBalanceStatus': false,
+      'payInfo.canPayStaus': false
+    })
 
     //输入积分操作
-    if (that.data.isInputPoint) {
+    if (that.data.payInfo.isInputPoint) {
       //积分兑换金额
-      var pointMoney = (parseInt(str) * that.data.memberInfo.integralTrade.money) / that.data.memberInfo.integralTrade.integral_sum;
+      var pointMoney = (parseInt(str) * that.data.payInfo.memberInfo.integralTrade.money) / that.data.payInfo.memberInfo.integralTrade.integral_sum;
 
       //最大应付金额
-      var shouldMoney = parseFloat(that.data.totalPrice) - parseFloat(that.data.discountPrice) - parseFloat(that.data.balancePrice);
+      var shouldMoney = parseFloat(that.data.payInfo.totalPrice) - parseFloat(that.data.payInfo.discountPrice) - parseFloat(that.data.payInfo.balancePrice);
 
-      if (parseFloat(pointMoney) > shouldMoney) {
-        that.setData({ inputValue: '' })
-      } else if (parseInt(str) > parseInt(that.data.memberInfo.mallCustomer.integral)) {
-        that.setData({ inputValue: '' });
+      if (parseInt(str) > parseInt(that.data.payInfo.memberInfo.mallCustomer.integral)) {
+        that.setData({ 'payInfo.upBalanceStatus': true })
+      } else if (pointMoney > shouldMoney) {
+        that.setData({ 'payInfo.overcapStatus': true })
       } else {
-        that.setData({ inputValue: str })
+        that.setData({
+          'payInfo.canPayStaus': true,
+          'payInfo.inputValue': str
+        })
+        isCan = true;
       }
     } else {
       //输入储值金额操作
-      var shouldPay = parseFloat(that.data.totalPrice) - parseFloat(that.data.discountPrice) - parseFloat(that.data.pointPrice);
+      var shouldPay = parseFloat(that.data.payInfo.totalPrice) - parseFloat(that.data.payInfo.discountPrice) - parseFloat(that.data.payInfo.pointPrice);
 
-      if (parseFloat(str) > shouldPay) {
-        that.setData({ inputValue: '' })
-      } else if (parseFloat(str) > parseFloat(that.data.memberInfo.mallCustomer.balance)) {
-        that.setData({ inputValue: '' });
+      if (parseFloat(str) > parseFloat(that.data.payInfo.memberInfo.mallCustomer.balance)) {
+        that.setData({ 'payInfo.upBalanceStatus': true })
+      } else if (parseFloat(str) > shouldPay.toFixed(2)) {
+        that.setData({ 'payInfo.overcapStatus': true })
       } else {
-        that.setData({ inputValue: str })
+        that.setData({
+          'payInfo.canPayStaus': true,
+          'payInfo.inputValue': str
+        })
+        isCan = true;
       }
     }
 
-    if (str.length > 0) {
-      if (that.data.isInputPoint) {
-        var point = (parseInt(that.data.inputValue) * that.data.memberInfo.integralTrade.money) / that.data.memberInfo.integralTrade.integral_sum;
-        that.setData({ inputDiscountValue: point });
+    if (isCan) {
+      if (that.data.payInfo.isInputPoint) {
+        //积分兑换金额
+        var exchangePrice = (parseFloat(that.data.payInfo.inputValue.length > 0 ? that.data.payInfo.inputValue : 0) * that.data.payInfo.memberInfo.integralTrade.money) / that.data.payInfo.memberInfo.integralTrade.integral_sum;
+        //剩余支付金额
+        var shouldMoney = parseFloat(that.data.payInfo.totalPrice) - parseFloat(that.data.payInfo.discountPrice) - parseFloat(that.data.payInfo.balancePrice) - exchangePrice;
+
+        that.setData({ 'payInfo.inputShouldPrice': shouldMoney.toFixed(2), 'payInfo.inputPointPrice': exchangePrice.toFixed(2) });
+
       } else {
-        that.setData({ inputDiscountValue: that.data.inputValue })
+        //剩余支付金额
+        var shouldPay = parseFloat(that.data.payInfo.totalPrice) - parseFloat(that.data.payInfo.discountPrice) - parseFloat(that.data.payInfo.pointPrice) - parseFloat(str.length > 0 ? str : 0);
+        that.setData({ 'payInfo.inputShouldPrice': shouldPay.toFixed(2) });
       }
     } else {
-      that.setData({ inputDiscountValue: 0 })
+      that.setData({
+        'payInfo.inputShouldPrice': that.data.payInfo.shouldPayPrice,
+        'payInfo.inputPointPrice': 0
+      });
     }
   },
-  onSureDiscount: function () {
+  onSure: function () {
     var that = this;
 
-    if (that.data.isInputPoint) {
-      that.setData({ pointPrice: that.data.inputDiscountValue, usePoint: that.data.inputValue });
+    if (that.data.payInfo.isInputPoint) {
+      if (that.data.payInfo.inputValue > 0) {
+        that.setData({
+          'payInfo.pointPrice': that.data.payInfo.inputPointPrice,
+          'payInfo.usePoint': that.data.payInfo.inputValue
+        });
+      } else {
+        that.setData({
+          'payInfo.pointPrice': 0,
+          'payInfo.usePoint': 0
+        });
+      }
+      that.getShouldPayAmount();
     } else {
-      that.setData({ balancePrice: that.data.inputDiscountValue, useBalance: that.data.inputValue });
+      if (that.data.payInfo.inputValue > 0) {
+        that.setData({
+          'payInfo.balancePrice': that.data.payInfo.inputValue,
+          'payInfo.useBalance': that.data.payInfo.inputValue
+        });
+      } else {
+        that.setData({
+          'payInfo.balancePrice': 0,
+          'payInfo.useBalance': 0
+        });
+      }
+      that.getShouldPayAmount();
     }
 
-    that.getShouldPayAmount();
-    that.setData({ isShowMemberRights: 'hide' });
+    that.setData({ isShowMemberRights: false });
   },
   //提交订单
-  offerOrderRequest: function (orderParameter, carts) {
+  offerOrderRequest: function (orderParameter) {
     var that = this;
 
     wx.showLoading({
       title: '正在提交订单...',
     })
 
-    app.globalData.request.payOrder(orderParameter, function (data) {
+    request.payOrder(orderParameter, function (data) {
       if (data.retCode >= 306 && data.retCode <= 308) {
         wx.showToast({
           title: data.retMsg,
           icon: "none"
         })
       } else {
-        if (that.data.isFromCart == 1) {
-          app.globalData.request.deleteCart({ cartIds: carts.join(',') }, function (data) {
+        wx.hideLoading();
+
+        if (parseFloat(that.data.payInfo.shouldPayPrice).toFixed(2) > 0) {
+          Wechat.wechatPayOrder(data.result.order.orderId, parseFloat(that.data.payInfo.shouldPayPrice * 100).toFixed(0), function (e) {
             wx.hideLoading();
-
-            wx.showModal({
-              title: '提示',
-              content: '订单提交成功!',
-              showCancel: false,
-              success: function (res) {
-                if (res.confirm) {
-                  wx.navigateBack();
-                }
-              }
-            })
-          });
-        } else {
-          wx.hideLoading();
-
-          wx.showModal({
-            title: '提示',
-            content: '订单提交成功!',
-            showCancel: false,
-            success: function (res) {
-              if (res.confirm) {
-                wx.navigateBack();
-              }
-            }
+            that.showOrderDetail(data.result.order.orderId);
           })
+        } else {
+          let parameter = {
+            orderId: data.result.order.orderId,
+            orderStatus: 'PENDING_DELIVERY'
+          };
+          //待发货订单
+          request.updateOrderStatus(parameter, function (data) {
+            wx.hideLoading();
+            //跳转订单详情
+            that.showOrderDetail(data.result.orderId);
+          });
         }
       }
     });
@@ -295,31 +371,55 @@ Page({
       }
     }
     var discountPrice = 0;
-    if (that.data.memberInfo.mallCustomer.discount != null) {
-      discountPrice = price * (1 - (that.data.memberInfo.mallCustomer.discount / 10));
+    if (that.data.payInfo.memberInfo.mallCustomer.discount != null) {
+      discountPrice = price * (1 - (that.data.payInfo.memberInfo.mallCustomer.discount / 10));
     }
-    that.setData({ totalPrice: price, discountPrice: discountPrice });
+    that.setData({ 'payInfo.totalPrice': price, 'payInfo.discountPrice': discountPrice.toFixed(2) });
     that.getShouldPayAmount();
   },
   //计算剩余应付金额
   getShouldPayAmount: function () {
     var that = this;
-    var shouldPay = parseFloat(that.data.totalPrice) - parseFloat(that.data.discountPrice) - parseFloat(that.data.balancePrice) - parseFloat(that.data.pointPrice);
-    that.setData({ shouldPayPrice: shouldPay });
+    var shouldPay = parseFloat(that.data.payInfo.totalPrice) - parseFloat(that.data.payInfo.discountPrice) - parseFloat(that.data.payInfo.balancePrice) - parseFloat(that.data.payInfo.pointPrice);
+    that.setData({ 'payInfo.shouldPayPrice': shouldPay });
   },
   //查询默认门店
   queryStoreList: function () {
     var that = this;
 
-    let options = {
-      key: app.globalData.wechatAppId
-    };
+    if (that.data.pickUp == 'MAIL') {
+      MapLocation.queryMapLocation(that.data.currentAddress.region + that.data.currentAddress.address, function (location) {
+        that.queryStoreRequest(location);
+      });
+    } else {
+      MapLocation.queryMapLocation(null, function (location) {
+        that.queryStoreRequest(location);
+      });
+    }
+  },
+  queryStoreRequest: function (location) {
+    var that = this;
 
-    app.globalData.request.queryStoreList(options, function (data) {
-      var store = data.result.content[0];
-      that.setData({ currentStore: store, totalStore: data.result.numberOfElements, isShowContent: '' });
+    StoreRequest.queryStoreRequest(location, '', 0, 1, function (result) {
+      if (result.content.length > 0) {
+        that.setData({ currentStore: result.content[0], totalStore: result.totalElements });
+      }
+      that.setData({ isShowContent: true });
       wx.hideLoading();
     });
+  },
+  //show订单详情
+  showOrderDetail: function (orderId) {
+    var that = this;
+
+    that.setData({ isShowOrderDetail: true })
+    that.OrderDetailComponent = that.selectComponent('#OrderDetailComponent');
+    that.OrderDetailComponent.showOrderDetail(orderId);
+
+    wx.setNavigationBarTitle({
+      title: '订单详情'
+    })
   }
 })
+
 

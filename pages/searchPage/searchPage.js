@@ -1,44 +1,56 @@
 // pages/searchPage/searchPage.js
 var app = getApp();
+var request = require('../../utils/Request.js')
+var Login = require('../../utils/Login.js')
+var Config = require('../../utils/Config.js')
 
 Page({
   data: {
     historySearchWords: [],
     allProductList: [],
-    isShowProductList: 'hide',
-    isShowSearchView: '',
-    showOrHide: 'hide',
+    isShowSearchView: true,
     classList: [],
     parameterList: [],
     currentPage: 1,
-    keyWord: '',
-    startPrice: '',
-    endPrice: '',
-    lowPriceStr: '',
-    heighPriceStr: '',
-    isEndLoading: false,
     pageSize: 20,
-    isFilter: false,
-    scrollTop: 0,
-    selectAllClass: [],
-    selectAllParameter: [],
-    doubleLayoutHeight: 0
+    currentTypeIndex: -1,
+    //选中分类参数集合
+    selectAllParameter: []
   },
   //--------------页面初始化 加载分类商品参数----------------//
   onLoad: function () {
     var that = this;
 
-    that.setData({ doubleLayoutHeight: app.globalData.doubleLayoutHeight});
+    Config.getImageAutoHeight(function (singleLayoutHeight, doubleLayoutHeight) {
+      that.setData({
+        doubleLayoutHeight: doubleLayoutHeight
+      })
+    });
 
-    var historyKeywords = wx.getStorageSync(app.globalData.historySearchWords);
+    //搜索商品记录
+    var historyKeywords = wx.getStorageSync(Config.Config.historySearchWords);
     if (historyKeywords.length > 0) {
       that.setData({ historySearchWords: historyKeywords });
     }
+    //查询所有商品分类信息
+    that.queryAllClassParameter();
+
+    //scrollView 高度
+    app.getSystemInfo(function (systemInfo) {
+      that.setData({
+        scrollHeight: (systemInfo.windowHeight - 45)
+      })
+    })
   },
   //--------------点击搜索记录查询商品----------------//
   onLastesItem: function (e) {
     var that = this;
-    that.setData({ isShowProductList: '', isShowSearchView: 'hide', keyWord: e.currentTarget.dataset.key, isFilter: false });
+    that.setData({
+      isShowProductList: true,
+      isShowSearchView: false,
+      keyWord: e.currentTarget.dataset.key,
+      isFilter: false
+    });
     that.onResetProperty();
     that.filterProductsRequest();
   },
@@ -46,55 +58,25 @@ Page({
   onClearHistoryWords: function () {
     var that = this;
     wx.removeStorage({
-      key: app.globalData.historySearchWords,
+      key: Config.Config.historySearchWords,
       success: function (res) {
         that.setData({ historySearchWords: [] });
       }
     })
   },
   //--------------点击分类----------------//
-  onClassClicked: function () {
+  onClassClicked: function (e) {
     var that = this;
-    that.setData({ showOrHide: '' });
-    wx.showLoading({});
-
-    let options = { companyId: app.globalData.belongCompany.id};
-
-    app.globalData.request.queryProductCategory(options, function (data) {
-      var classTypes = data.types;
-      var parameters = data.parameters;
-
-      for (var i = 0; i < that.data.selectAllClass.length; i++) {
-        var item = that.data.selectAllClass[i];
-        for (var j = 0; j < classTypes.length; j++) {
-          var object = classTypes[j];
-          if (object.type.typeId == item.type.typeId) {
-            object.selected = true;
-          }
-        }
-      }
-
-      for (var i = 0; i < that.data.selectAllParameter.length; i++) {
-        var item = that.data.selectAllParameter[i];
-        for (var z = 0; z < parameters.length; z++) {
-          var object = parameters[z];
-          for (var j = 0; j < object.goodsParameters.length; j++) {
-            var parameter = object.goodsParameters[j];
-            if (parameter.id == item.id) {
-              parameter.selected = true;
-            }
-          }
-        }
-      }
-      that.setData({ classList: classTypes, parameterList: parameters, lowPriceStr: that.data.startPrice, heighPriceStr: that.data.endPrice });
-
-      wx.hideLoading();
-    })
+    that.setData({ showOrHide: true });
+    that.resetParameterSelectStatus();
+    that.querySelectClassInfo(that.data.currentTypeIndex);
   },
   onBgClicked: function () {
-    this.setData({ showOrHide: 'hide', classList: null, parameterList: null });
+    var that = this;
+    that.setData({ showOrHide: false });
   },
-  onProductDetail: function (event) {
+  //--------------点击商品详情----------------//
+  onGoodsDetail: function (event) {
     var value = event.currentTarget.dataset.key;
     wx.navigateTo({
       url: '../productDetail/productDetail?id=' + value.goodsId,
@@ -110,28 +92,9 @@ Page({
   onChooseClass: function (e) {
     var that = this;
     var item = e.currentTarget.dataset.key;
-
-    for (var i = 0; i < that.data.classList.length; i++) {
-      var object = that.data.classList[i];
-      if (object.type.typeId == item.type.typeId) {
-        object.selected = !item.selected;
-      } else {
-        object.selected = false;
-      }
-    }
-    that.setData({ classList: that.data.classList });
+    that.querySelectClassInfo(parseInt(e.currentTarget.id))
   },
-  chooseClass: function () {
-    var that = this;
-
-    for (var i = 0; i < that.data.classList.length; i++) {
-      var object = that.data.classList[i];
-      if (object.selected) {
-        return object.type.typeId;
-      }
-    }
-  },
-  //--------------选择规则参数操作----------------//
+  //--------------选择分类参数操作----------------//
   onSelectProperty: function (e) {
     var that = this;
     var item = e.currentTarget.dataset.key;
@@ -147,73 +110,17 @@ Page({
     }
     that.setData({ parameterList: that.data.parameterList });
   },
-  chooseParameter: function () {
-    var that = this;
-    var allParameter = new Array();
-
-    for (var i = 0; i < that.data.parameterList.length; i++) {
-      var object = that.data.parameterList[i];
-      for (var j = 0; j < object.goodsParameters.length; j++) {
-        var parameter = object.goodsParameters[j];
-        if (parameter.selected) {
-          allParameter.push(parameter.id);
-        }
-      }
-    }
-    return allParameter;
-  },
   //--------------确认操作----------------//
   onSureFilterProducts: function () {
     var that = this;
     that.addFilterParameter();
-    that.setData({ showOrHide: 'hide', keyWord: '', isFilter: true });
+    that.setData({ showOrHide: false, keyWord: '', isFilter: true });
     that.filterProductsRequest();
-  },
-  addFilterParameter: function () {
-    var that = this;
-    that.data.selectAllClass.splice(0, 1);
-    that.data.selectAllParameter.splice(0, that.data.selectAllParameter.length);
-
-    for (var i = 0; i < that.data.classList.length; i++) {
-      var object = that.data.classList[i];
-      if (object.selected) {
-        that.data.selectAllClass.push(object);
-      }
-    }
-
-    for (var i = 0; i < that.data.parameterList.length; i++) {
-      var object = that.data.parameterList[i];
-      for (var j = 0; j < object.goodsParameters.length; j++) {
-        var parameter = object.goodsParameters[j];
-        if (parameter.selected) {
-          that.data.selectAllParameter.push(parameter);
-        }
-      }
-    }
-    that.setData({ startPrice: that.data.lowPriceStr, endPrice: that.data.heighPriceStr });
   },
   //--------------重置操作----------------//
   onResetProperty: function () {
     var that = this;
     that.clearFilterData();
-  },
-  //--------------清除筛选数据----------------//
-  clearFilterData: function () {
-    var that = this;
-
-    for (var i = 0; i < that.data.classList.length; i++) {
-      var object = that.data.classList[i];
-      object.selected = false;
-    }
-
-    for (var i = 0; i < that.data.parameterList.length; i++) {
-      var object = that.data.parameterList[i];
-      for (var j = 0; j < object.goodsParameters.length; j++) {
-        var parameter = object.goodsParameters[j];
-        parameter.selected = false;
-      }
-    }
-    that.setData({ parameterList: that.data.parameterList, classList: that.data.classList, lowPriceStr: '', heighPriceStr: '' });
   },
   //--------------输入价格操作----------------//
   onStartPriceClicked: function (event) {
@@ -232,68 +139,68 @@ Page({
   onSearchInput: function (e) {
     var that = this;
     that.setData({ keyWord: e.detail.value, isFilter: false });
-    that.onUpdateHistorySearchWords();
+    that.updateHistorySearchWords();
     that.onResetProperty();
     that.filterProductsRequest();
   },
-  //--------------搜索商品初始化查询----------------//
+  //搜索商品初始化查询//
   filterProductsRequest: function () {
     wx.showLoading({});
 
     var that = this;
 
-    that.setData({ isShowProductList: '', isShowSearchView: 'hide', currentPage: 1, isEndLoading: false, scrollTop: 0, allProductList: [] });
+    that.setData({
+      isShowProductList: true,
+      isShowSearchView: false,
+      currentPage: 1,
+      scrollTop: 0,
+      allProductList: []
+    });
     that.queryProductsRequest();
   },
-  //--------------查询商品----------------//
+  //查询商品//
   queryProductsRequest: function () {
     var that = this;
 
-    if (that.data.isEndLoading) return;
+    if (that.data.currentPage == 1) {
+      that.setData({ isEndLoad: false });
+    }
 
     var options = new Object();
-    options.companyId = app.globalData.belongCompany.id;
+    options.companyId = Login.Customer.companyId;
     options.pageNumber = that.data.currentPage;
     options.pageSize = that.data.pageSize;
 
     if (that.data.isFilter) {
-      options.minPrice = that.data.startPrice;
-      options.maxPrice = that.data.endPrice;
-      if (that.chooseClass() > 0) {
-        options.typeId = that.chooseClass();
+      if (that.data.startPrice){
+        options.minPrice = that.data.startPrice;
       }
-      if (that.chooseParameter().length > 0) {
+      if (that.data.endPrice){
+        options.maxPrice = that.data.endPrice;
+      }
+      if (that.data.currentTypeId != null) {
+        options.typeId = that.data.currentTypeId;
+      }
+
+      if (that.data.selectAllParameter.length > 0) {
         options.goodsParameterIds = that.chooseParameter().join(',');
       }
     } else {
       options.keyword = that.data.keyWord;
     }
 
-    app.globalData.request.queryProductList(options, function (data) {
+    request.queryProductList(options, function (data) {
       that.setData({ allProductList: that.data.allProductList.concat(data.resultList) });
 
-      wx.hideLoading();
+      if (that.data.allProductList.length > 0 && data.resultList.length == 0) {
+        that.setData({ isEndLoad: true });
+      }
 
-      // if (data.resultList.length == 0) {
-      //   if (that.data.allProductList.length == 0) {
-      //     wx.showToast({
-      //       title: '未查询到任何商品',
-      //       icon: 'none',
-      //       duration: 2000
-      //     })
-      //   }
-      //   else {
-      //     wx.showToast({
-      //       title: '全部商品加载完',
-      //       icon: 'none',
-      //       duration: 2000
-      //     })
-      //   }
-      // }
+      wx.hideLoading();
     })
   },
-  //--------------本地保存商品搜索记录----------------//
-  onUpdateHistorySearchWords: function () {
+  //本地保存商品搜索记录//
+  updateHistorySearchWords: function () {
     var that = this;
 
     if (that.data.keyWord.length == 0) return;
@@ -301,16 +208,147 @@ Page({
     if (that.data.historySearchWords.length > 0) {
       if (that.data.historySearchWords.indexOf(that.data.keyWord) == -1) {
         that.data.historySearchWords.push(that.data.keyWord);
-        wx.setStorageSync(app.globalData.historySearchWords, that.data.historySearchWords);
+        wx.setStorageSync(Config.Config.historySearchWords, that.data.historySearchWords);
       }
     } else {
       var historyList = new Array();
       historyList.push(that.data.keyWord);
 
       wx.setStorage({
-        key: app.globalData.historySearchWords,
+        key: Config.Config.historySearchWords,
         data: historyList,
       })
     }
   },
+  //查询所有商品分类信息
+  queryAllClassParameter: function () {
+    var that = this;
+
+    let options = { companyId: Login.Customer.companyId };
+
+    request.queryProductCategory(options, function (data) {
+      that.setData({ classList: data.result });
+    })
+  },
+  querySelectClassInfo: function (index) {
+    var that = this;
+    var indexClass = that.data.classList[index > 0 ? index : 0];
+
+    for (var i = 0; i < that.data.classList.length; i++) {
+      var value = that.data.classList[i];
+      if (i == index) {
+        value.selected = !value.selected;
+      } else {
+        value.selected = false;
+      }
+    }
+
+    //hasClassSelect
+    for (var i = 0; i < that.data.classList.length; i++) {
+      var value = that.data.classList[i];
+      if (value.selected) {
+        that.setData({ hasClassSelect: true });
+        break;
+      } else {
+        that.setData({ hasClassSelect: false });
+      }
+    }
+
+    for (var i = 0; i < that.data.selectAllParameter.length; i++) {
+      var item = that.data.selectAllParameter[i];
+      for (var z = 0; z < indexClass.parameterBeans.length; z++) {
+        var object = indexClass.parameterBeans[z];
+        for (var j = 0; j < object.goodsParameters.length; j++) {
+          var parameter = object.goodsParameters[j];
+          if (parameter.id == item.id && indexClass.type.typeId == that.data.currentTypeId) {
+            parameter.selected = true;
+          }
+        }
+      }
+    }
+
+    that.setData({
+      classList: that.data.classList,
+      parameterList: indexClass.parameterBeans
+    });
+  },
+  //已选商品参数集合
+  chooseParameter: function () {
+    var that = this;
+    var allParameter = new Array();
+
+    for (var i = 0; i < that.data.selectAllParameter.length; i++) {
+      var parameter = that.data.selectAllParameter[i];
+      if (parameter.selected) {
+        allParameter.push(parameter.id);
+      }
+    }
+    return allParameter;
+  },
+  //新增商品分类参数选择(确认操作)
+  addFilterParameter: function () {
+    var that = this;
+    that.setData({ currentTypeId: null, currentTypeIndex: -1 });
+    that.data.selectAllParameter.splice(0, that.data.selectAllParameter.length);
+
+    for (var i = 0; i < that.data.classList.length; i++) {
+      var classObject = that.data.classList[i];
+      if (classObject.selected) {
+        that.setData({
+          currentTypeId: classObject.type.typeId,
+          currentTypeIndex: i
+        });
+      }
+    }
+
+    for (var i = 0; i < that.data.parameterList.length; i++) {
+      var parameterObject = that.data.parameterList[i];
+      for (var j = 0; j < parameterObject.goodsParameters.length; j++) {
+        var parameter = parameterObject.goodsParameters[j];
+        if (parameter.selected) {
+          that.data.selectAllParameter.push(parameter);
+        }
+      }
+    }
+    that.setData({
+      startPrice: that.data.lowPriceStr,
+      endPrice: that.data.heighPriceStr
+    });
+  },
+  //清除筛选数据//
+  clearFilterData: function () {
+    var that = this;
+    that.resetParameterSelectStatus();
+
+    that.setData({
+      lowPriceStr: '',
+      heighPriceStr: ''
+    });
+  },
+  //初始化筛选数据选中状态
+  resetParameterSelectStatus: function () {
+    var that = this;
+
+    for (var i = 0; i < that.data.classList.length; i++) {
+      var object = that.data.classList[i];
+      object.selected = false;
+    }
+
+    for (var z = 0; z < that.data.classList.length; z++) {
+      var classObject = that.data.classList[z];
+      for (var i = 0; i < classObject.parameterBeans.length; i++) {
+        var paremetrObject = classObject.parameterBeans[i];
+        for (var j = 0; j < paremetrObject.goodsParameters.length; j++) {
+          var parameter = paremetrObject.goodsParameters[j];
+          parameter.selected = false;
+        }
+      }
+    }
+
+    that.setData({
+      hasClassSelect: false,
+      parameterList: [],
+      classList: that.data.classList
+    });
+  }
 })

@@ -1,10 +1,3 @@
-/* pages/editAddress/editAddress.wxss */
-
-/* pages/editAddress/editAddress.wxss */
-
-page {
-  background-color: #fbf9fe;
-}
 
 .contacterView {
   display: flex;

@@ -1,4 +1,7 @@
 // pages/bindPhone/bindPhone.js
+var request = require('../../utils/Request.js')
+var Login = require('../../utils/Login.js')
+
 var total_micro_second = 60 * 1000;
 
 /* 毫秒级倒计时 */
@@ -45,12 +48,9 @@ var app = getApp();
 
 Page({
   data: {
-    isSendCode: false,
-    isCanBind: false,
     bindPhone: '',
     bindCode: '',
     clock: '获取验证码',
-    userInfo: null,
     isShowMemberRightsMemo: 'hide',
     isShowInfoAlert: '',
     isShowContent: 'hide'
@@ -66,7 +66,11 @@ Page({
     var that = this;
 
     if (e.detail.userInfo != null) {
-      that.setData({ userInfo: e.detail.userInfo, isShowInfoAlert: 'hide', isShowContent: '' });
+      that.setData({
+        userInfo: e.detail.userInfo,
+        isShowInfoAlert: 'hide',
+        isShowContent: ''
+      });
     } else {
       wx.navigateBack();
     }
@@ -78,17 +82,17 @@ Page({
       let options = {
         validCode: that.data.bindCode,
         phone: that.data.bindPhone,
-        userAccount: app.globalData.weChatUser.openId,
-        weChatAccount: app.globalData.weChatAccountObject.wechatAccount
+        userAccount: Login.Customer.openId,
+        weChatAccount: Login.Customer.wechatAccount
       };
 
-      app.globalData.request.verityPhoneCode(options, function (data) {
+      request.verityPhoneCode(options, function (data) {
         wx.showModal({
           content: '用户绑定手机号成功!',
           showCancel: false,
           success: function (res) {
             //重新登录
-            app.userLogin(function () {
+            Login.userLogin(function () {
               wx.navigateBack()
             })
           }
@@ -107,16 +111,14 @@ Page({
       return
     }
 
-    console.log(app.globalData.weChatUser);
-
     if (!that.data.isSendCode) {
       let options = {
         phone: that.data.bindPhone,
-        userAccount: app.globalData.weChatUser.openId,
-        weChatAccount: app.globalData.weChatAccountObject.wechatAccount
+        userAccount: Login.Customer.openId,
+        weChatAccount: Login.Customer.wechatAccount
       };
 
-      app.globalData.request.sendVerityCode(options, function (data) {
+      request.sendVerityCode(options, function (data) {
         count_down(that);
         that.setData({ isSendCode: true })
 

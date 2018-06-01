@@ -1,4 +1,5 @@
 // pages/tryGlass/tryGlass.js
+var Login = require('../../utils/Login.js')
 var app = getApp();
 
 Page({
@@ -6,14 +7,13 @@ Page({
     tryLinkURL: 'https://icepointcloud.com/wechat/mall/getStartExperience.html?type=miniprogram'
   },
 
-
   onLoad: function (options) {
     // 页面初始化 options为页面跳转所带来的参数
     console.log(options);
 
     var that = this;
 
-    that.setData({ tryLinkURL: that.data.tryLinkURL + "&key=" + encodeURIComponent(app.globalData.wechatAppId) + "&photoLink=" + options.link });
+    that.setData({ tryLinkURL: that.data.tryLinkURL + "&key=" + encodeURIComponent(Login.ConfigData.wechatAppKey) + "&photoLink=" + options.link });
 
     console.log(that.data.tryLinkURL);
   },

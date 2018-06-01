@@ -1,6 +1,6 @@
-//正式环境地址
 var HostURL = 'https://icepointcloud.com';
-//正式环境端口
+
+//端口
 var port = '/wechat/api/mall';
 var sessionId = null;
 
@@ -82,6 +82,23 @@ function getCompanyTemplate(options, callBack) {
     })
 }
 
+//获取专场详情
+function getTemplateDetail(options, callBack) {
+  var that = this;
+
+  let msg = {
+    data: options,
+    url: port + '/getTemplateInfoDetail',
+    method: 'GET'
+  }
+
+  http(msg).then(
+    data => {
+      typeof callBack == "function" && callBack(data)
+    }).catch(e => {
+
+    })
+}
 
 //验证手机验证码并绑定手机号
 function verityPhoneCode(options, callBack) {
@@ -141,13 +158,13 @@ function getMemberInfo(callBack) {
 }
 
 //微信支付预付款
-function payOrder(options, callBack) {
+function wechatPayOrder(options, callBack) {
   var that = this;
 
   let msg = {
     data: options,
     url: '/api/wechat/pay/unifiedOrder',
-    method: 'GET'
+    method: 'POST'
   }
 
   http(msg).then(
@@ -157,6 +174,43 @@ function payOrder(options, callBack) {
 
     })
 }
+
+//微信付款后操作
+function wechatCompletePayOrder(options, callBack) {
+  var that = this;
+
+  let msg = {
+    data: options,
+    url: '/api/wechat/pay/paySuccessCallBack',
+    method: 'POST'
+  }
+
+  http(msg).then(
+    data => {
+      typeof callBack == "function" && callBack(data)
+    }).catch(e => {
+
+    })
+}
+
+//微信付款后操作
+function wechatCancelPayOrder(options, callBack) {
+  var that = this;
+
+  let msg = {
+    data: options,
+    url: '/api/wechat/pay/payCancelCallBack',
+    method: 'POST'
+  }
+
+  http(msg).then(
+    data => {
+      typeof callBack == "function" && callBack(data)
+    }).catch(e => {
+
+    })
+}
+
 
 //查询商品
 function queryProductList(options, callBack) {
@@ -182,7 +236,7 @@ function queryProductCategory(options, callBack) {
 
   let msg = {
     data: options,
-    url: port + "/company/searchInfos",
+    url: port + "/company/typeInfos",
     method: 'GET'
   }
 
@@ -193,6 +247,25 @@ function queryProductCategory(options, callBack) {
 
     })
 }
+
+//查询商品不同类目参数信息
+function queryCategoryParameter(options, callBack) {
+  var that = this;
+
+  let msg = {
+    data: options,
+    url: port + "/type/parameters",
+    method: 'GET'
+  }
+
+  http(msg).then(
+    data => {
+      typeof callBack == "function" && callBack(data)
+    }).catch(e => {
+
+    })
+}
+
 
 //查询商品详情
 function queryProductDetail(options, callBack) {
@@ -255,6 +328,24 @@ function queryCartList(callBack) {
 
   let msg = {
     url: port + '/listShoppingCart',
+    method: 'GET',
+    sessionId: 'JSESSIONID=' + that.sessionId
+  }
+
+  http(msg).then(
+    data => {
+      typeof callBack == "function" && callBack(data)
+    }).catch(e => {
+
+    })
+}
+
+//查询购物车数量
+function queryCartCount(callBack) {
+  var that = this;
+
+  let msg = {
+    url: port + '/getShoppingCartCount',
     method: 'GET',
     sessionId: 'JSESSIONID=' + that.sessionId
   }
@@ -351,6 +442,7 @@ function queryStoreList(options, callBack) {
     method: 'GET'
   }
 
+  //localHttp
   http(msg).then(
     data => {
       typeof callBack == "function" && callBack(data)
@@ -488,6 +580,25 @@ function payOrder(options, callBack) {
     })
 }
 
+//修改订单状态 (取消订单、确认收货)
+function updateOrderStatus(options, callBack) {
+  var that = this;
+
+  let msg = {
+    data: options,
+    url: port + '/order/reversalOrderStatus',
+    method: 'POST',
+    sessionId: 'JSESSIONID=' + that.sessionId
+  }
+
+  http(msg).then(
+    data => {
+      typeof callBack == "function" && callBack(data)
+    }).catch(e => {
+
+    })
+}
+
 //订单列表
 function queryOrderList(options, callBack) {
   var that = this;
@@ -526,6 +637,25 @@ function queryOrderDetail(options, callBack) {
     })
 }
 
+//查看提货方式配置
+function queryPickupStatus(callBack) {
+  var that = this;
+
+  let msg = {
+    url: port + '/order/pickUpGoodsType',
+    method: 'GET',
+    sessionId: 'JSESSIONID=' + that.sessionId
+  }
+
+  http(msg).then(
+    data => {
+      typeof callBack == "function" && callBack(data)
+    }).catch(e => {
+
+    })
+}
+
+
 //后台请求
 function http(msg) {
   var header = {
@@ -560,6 +690,40 @@ function http(msg) {
   })
 }
 
+//测试localHost后台请求
+function localHttp(msg) {
+  var header = {
+    'content-type': 'application/json'
+  };
+
+  if (msg.sessionId != null) {
+    header.Cookie = msg.sessionId;
+  }
+
+  return new Promise((resolve, reject) => {
+    wx.request({
+      url: LocalHostURL + msg.url,
+      data: msg.data,
+      header: header,
+      method: msg.method,
+      success: function (res) {
+        if (res.statusCode == 200 && res != null) {
+          resolve(res.data);
+          console.log(res);
+        } else {
+          wx.showToast({
+            title: '服务器繁忙，请重试',
+            icon: 'none'
+          })
+        }
+      },
+      fail: function (res) {
+        reject(res);
+      }
+    })
+  })
+}
+
 
 module.exports = {
   login: login,
@@ -567,9 +731,15 @@ module.exports = {
   getCompanyInfo: getCompanyInfo,
   getMemberInfo: getMemberInfo,
   getCompanyTemplate: getCompanyTemplate,
+  getTemplateDetail: getTemplateDetail,
   payOrder: payOrder,
+  updateOrderStatus: updateOrderStatus,
+  wechatPayOrder: wechatPayOrder,
+  wechatCompletePayOrder: wechatCompletePayOrder,
+  wechatCancelPayOrder: wechatCancelPayOrder,
   queryProductList: queryProductList,
   queryProductCategory: queryProductCategory,
+  queryCategoryParameter: queryCategoryParameter,
   queryProductDetail: queryProductDetail,
   queryProductDetailParameter: queryProductDetailParameter,
   addShoppingCart: addShoppingCart,
@@ -590,7 +760,9 @@ module.exports = {
   setSessionId: setSessionId,
   sessionId: sessionId,
   verityPhoneCode: verityPhoneCode,
-  sendVerityCode: sendVerityCode
+  sendVerityCode: sendVerityCode,
+  queryPickupStatus: queryPickupStatus,
+  queryCartCount: queryCartCount
 }
 
 
