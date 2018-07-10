@@ -3,7 +3,12 @@ App({
   onLaunch: function (options) {
 
   },
-
+  onShow: function () {
+    this.globalData.isRequireLoad = true;
+  },
+  onHide: function () {
+    console.log('hide');
+  },
   getSystemInfo: function (cb) {
     var that = this;
 
@@ -20,6 +25,13 @@ App({
   },
 
   globalData: {
-    systemInfo: null
+    systemInfo: null,
+    isRequireLoad: false,
+    //主域名
+    HostURL: 'https://icepointcloud.com',
+    //小程序id
+    miniAppId: 'wx8248801e4c59207f',
+    //小程序名
+    miniAppName: '冰点云智慧门店'
   }  
 })

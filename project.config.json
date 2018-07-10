@@ -8,9 +8,9 @@
 		"newFeature": true
 	},
 	"compileType": "miniprogram",
-	"libVersion": "1.9.9",
-	"appid": "wx6703326230ba4ecd",
-	"projectname": "MallTest",
+	"libVersion": "2.1.1",
+	"appid": "wx5b154126263c8ae8",
+	"projectname": "Mall",
 	"svr": "",
 	"client": "",
 	"qcloudRoot": "",

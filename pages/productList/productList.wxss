@@ -1,4 +1,10 @@
+@import "../../utils/Template/BackGroundTemplate/BackGroundTemplate.wxss";
 @import "../../utils/Template/ProductListTemplate/ProductListTemplate.wxss";
+
+.contentView{
+  position: absolute;
+  width: 100%;
+}
 
 .productListView {
   width: calc(100% - 5px);
@@ -22,4 +28,20 @@
 .HomeMenuImage{
   width: 29px;
   height: 24px;
+}
+
+.emptyView{
+  position: fixed;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  left: 0px;
+  top: 0px;
+  width: 100%;
+  height: 100%;
+}
+
+.emptyImage{
+  width: 101px;
+  height: 119px;
 }

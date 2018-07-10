@@ -16,6 +16,7 @@ function userLogin(cb) {
         //保存客户登录信息
         Customer.openId = data.result.weChatUserInfo.weChatUserKey.openId;
         Customer.weChatAccount = data.result.weChatAccountObject.wechatAccount;
+        Customer.weChatUserInfo = data.result.weChatUserInfo;
         //登录sessionId
         request.setSessionId(data.result.sessionId);
 
@@ -26,24 +27,41 @@ function userLogin(cb) {
 }
 //校验用户登录状态
 function valityLogigStatus(cb) {
-  var that = this;
+  wx.showLoading();
 
+  var that = this;
   request.valityLoginStatus(function (data) {
     if (data.retCode == 201 || data.retCode == 203) {
-      typeof cb == "function" && cb(false);
+      userLogin(function (customer) {
+        wx.hideLoading();
+
+        if (customer != null) {
+          typeof cb == "function" && cb(true);
+        } else {
+          typeof cb == "function" && cb(false);
+        }
+      })
     } else {
+      wx.hideLoading();
       typeof cb == "function" && cb(true);
     }
   });
 }
 
+function parseCompanyInfo(result) {
+  Customer.companyId = result.wechatAccount.belongedCompany.id;//公司id
+  ConfigData.wechatAppKey = result.key;//公众号key
+  ConfigData.wechatSecret = result.wechatAccount.paySecret;//支付密钥
+  ConfigData.wechatId = result.wechatAccount.appId;
+}
+
 var ConfigData = {
   //公众号key
-  wechatAppKey: 'b2qux4BoxIrHE6VFqg54VHKtwAbZ02wwYfdXhKQZH+A=',
+  wechatAppKey: null,
   //公众号密钥
-  wechatSecret: '5FEE9C288C8442B6AAF74077A203DCB8',
+  wechatSecret: null,
   //公众号id 
-  wechatId: 'wx88733d8309af5807',
+  wechatId: null,
   //qq地图key
   qqMapKey: '7KFBZ-DM533-AJE3Q-YOEM3-ZLKOS-EGBBL'
 }
@@ -51,6 +69,7 @@ var ConfigData = {
 var Customer = {
   sessionId: null,
   weChatAccount: null,
+  weChatUserInfo: null,
   openId: null,
   companyId: null
 }
@@ -58,6 +77,7 @@ var Customer = {
 module.exports = {
   userLogin: userLogin,
   valityLogigStatus: valityLogigStatus,
+  parseCompanyInfo: parseCompanyInfo,
   ConfigData,
   Customer
 }

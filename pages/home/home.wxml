@@ -1,16 +1,19 @@
+<import src="template/CompanyTemplate.wxml" />
 <import src="template/ClassTemplate.wxml" />
+<import src="../../utils/Template/BackGroundTemplate/BackGroundTemplate.wxml" />
 <import src="../../utils/Template/ProductListTemplate/ProductListTemplate.wxml" />
-<template is="ClassTemplate" data="{{classList,currentType,classItemWidth}}" wx:if="{{isShowClassView}}"></template>
+<template is="ClassTemplate" data="{{classList,currentType,classItemWidth,isHiden}}" wx:if="{{isShowClassView}}"></template>
 <view class="page">
+  <template is="bgTemplate"></template>
   <view class="contentView" style='{{classList.length > 1 ? "height: 95px;":"height: 45px;"}}'>
     <view class="search-input-view">
       <view class="search-input">
         <image class="search-icon" src="../images/home_search@2x.png" mode="aspectFit" />
-        <text class="inputSearch" bindtap='onSearchProduct'>请输入您要搜索的商品</text>
+        <text class="showSearch" bindtap='onSearchProduct'>请输入您要搜索的商品</text>
       </view>
     </view>
     <view class='classMenuView' wx:if="{{classList.length > 1}}">
-      <scroll-view class="scroll-view-x" scroll-x="true" scroll-left="{{scrollLeft}}">
+      <scroll-view class="scroll-view-x" scroll-x="true" scroll-left="{{scrollLeft}}" wx:if="{{!isShowClassView}}">
         <ul class="hengxiangul">
           <li wx:for="{{classList}}" bindtap="onClassItemClicked" data-key="{{item}}" id="classOutItem-{{item.typeId}}">
             <text class='liText' style='color: #222222;' wx:if="{{currentType == item.typeName}}">{{item.typeName}}</text>
@@ -19,37 +22,40 @@
           </li>
         </ul>
       </scroll-view>
-      <view class='openView' bindtap='onShowClassView'>
-        <image class='openMenuImage' src='../images/icon_downArrow@2x.png' mode="aspectFit"></image>
+      <view class='closeCoverView' wx:else>
+        <text class='chooseTitle'>请选择</text>
+      </view>
+      <view class='openView' catchtap='onShowOrHideClassView'>
+        <image class='openMenuImage' src='../images/icon_downArrow@2x.png' mode="aspectFit" animation="{{animationRotate}}"></image>
       </view>
     </view>
   </view>
   <view class='emptyCartView' wx:if="{{noneWechatAccount}}" style='{{classList.length > 1 ? "top: 95px;":"top: 45px;"}}'>
     <image src='../images/icon_emptyTemplate@2x.png' class='emptyImage' mode="aspectFit"></image>
   </view>
-  <view class='templateContentView' style='{{classList.length > 1 ? "top: 95px;":"top: 45px;"}}' wx:if="{{templateList.length > 0 && isShowTemplateView}}">
+   <view class='templateContentView' wx:if="{{templateList.length > 0 && isShowTemplateView}}" style='{{classList.length > 1 ? "top: 95px;":"top: 45px;"}}'>
     <block wx:for-items="{{templateList}}" wx:for-item="template">
-      <view class='templateSessionView' bindtap='onTemplateDetail' data-key='{{template}}'>
-        <image src='{{template.mainPic[0]}}' style='width: 100%;height:{{(deviceWidth*9)/16}}px;' wx:if="{{template.mainPic.length > 0}}"></image>
-        <view class='templateTitleView'>
-          <text class='templateMainTitle'>{{template.mainTitle}}</text>
-          <text class='templateSubTitle'>{{template.subTitle}}</text>
-        </view>
-        
-        <view wx:if="{{template.layout != '0'}}" style='{{template.layout == "2" ? "width: calc(100% - 5px);margin-top:5px;":"width: 100%;margin-top:5px;"}}'>
-          <block wx:for-items="{{template.productBeans}}">
-            <template is='SingleLayOut' data="{{item,singleLayoutHeight}}" wx:if="{{template.layout == '1' &&item.shopWindow}}"></template>
-            <template is='DoubleLayOut' data="{{item,doubleLayoutHeight}}" wx:elif="{{template.layout == '2' && item.shopWindow}}"></template>
-          </block>
-        </view>
-      </view>
+      <template is="CompanyTemplate" data="{{template,deviceWidth,singleLayoutHeight,doubleLayoutHeight}}"></template>
     </block>
-  </view>
-  <scroll-view scroll-y="true" class='productListView' bindscrolltolower="onLoadMore" lower-threshold='200' style='{{classList.length > 1 ? "top: 95px;":"top: 45px;"}}' wx:if="{{isShowProductListView}}">
+  </view> 
+  <!-- <swiper class="swiperView" current="{{swiperPgae}}" bindchange="bindChange">
+    <swiper-item  wx:for="{{classList}}">
+      <scroll-view scroll-y="true" class='productListView' bindscrolltolower="onLoadMore" lower-threshold='100' style='top: 100px; height:{{scrollHeight - 100}}px;'>
+        <block wx:for-items="{{productList}}">
+          <template is='normalLayOut' data="{{item,doubleLayoutHeight}}"></template>
+        </block>
+        <wxc-loadmore wx:if="{{isEndLoad}}" is-end="{{true}}" text="到底啦" _pid="{{_pid}}">
+        </wxc-loadmore>
+      </scroll-view>
+    </swiper-item>
+  </swiper> -->
+   <scroll-view scroll-y="true" class='productListView' bindscrolltolower="onLoadMore" lower-threshold='100' style='top: 100px; height:{{scrollHeight - 100}}px;' wx:if="{{isShowProductListView}}">
     <block wx:for-items="{{productList}}">
       <template is='normalLayOut' data="{{item,doubleLayoutHeight}}"></template>
     </block>
-  </scroll-view>
+    <wxc-loadmore wx:if="{{isEndLoad}}" is-end="{{true}}" text="到底啦" _pid="{{_pid}}">
+    </wxc-loadmore>
+  </scroll-view> 
   <view class='bottomCoverMenuView'>
     <view class='personMenu' bindtap='onBottomMenuToPerson'>
       <image class='personMenuImage' mode="aspectFit" src="../images/person_menu@2x.png"></image>

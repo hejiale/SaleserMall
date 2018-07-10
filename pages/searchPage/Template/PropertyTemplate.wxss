@@ -20,11 +20,26 @@
   position: absolute;
   display: flex;
   flex-direction: column;
-  top: 0;
-  left: 20%;
+  top: 0px;
+  right: 0px;
   width: 80%;
   height: 100%;
   background-color: #fff;
+  animation-duration: 0.5s;
+  animation-name: first;
+  animation-timing-function: ease;
+}
+
+@keyframes first {
+  0% {
+    right: -80%;
+    top: 0px;
+  }
+
+  100% {
+    right: 0px;
+    top: 0px;
+  }
 }
 
 .propertyClassView {
@@ -52,8 +67,8 @@
   height: 30px;
   line-height: 40px;
   text-align: center;
-  color: #4d9fd8;
-  border: 1px solid #4d9fd8;
+  color: #3DA8F5;
+  border: 1px solid #3DA8F5;
   font-size: 15px;
   border-radius: 3px;
 }
@@ -69,7 +84,7 @@
   text-align: center;
   color: white;
   font-size: 15px;
-  background-color: #4d9fd8;
+  background-color: #3DA8F5;
   border-radius: 3px;
 }
 

@@ -4,7 +4,7 @@ var app = getApp();
 
 Page({
   data: {
-    tryLinkURL: 'https://icepointcloud.com/wechat/mall/getStartExperience.html?type=miniprogram'
+    tryLinkURL: app.globalData.HostURL + '/wechat/mall/getStartExperience.html?type=miniprogram'
   },
 
   onLoad: function (options) {
@@ -24,7 +24,7 @@ Page({
     console.log(e.detail.data[0].isOrder);
 
     //试戴下单
-    if (e.detail.data[0].isOrder == true){
+    if (e.detail.data[0].isOrder == true) {
       var pages = getCurrentPages()
       var prevPage = pages[pages.length - 2]
 

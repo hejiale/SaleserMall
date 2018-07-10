@@ -28,7 +28,7 @@
         <image mode="aspectFit" class="productImage" src='{{item.goodsOrder.photoUrl}}'></image>
         <view class="productInfo">
           <text class="productNameText">{{item.goodsOrder.name}}</text>
-          <text class='specificationsText'>{{item.specification}}</text>
+          <text class='specificationsText' wx:if="{{item.specification.length > 0}}">{{item.specification}}</text>
           <view class="priceView">
             <text class="numText">x{{item.goodsOrder.count}}</text>
             <text class="price">￥ {{filter.numberToFix(item.goodsOrder.price)}}</text>
@@ -38,14 +38,18 @@
     </block>
   </view>
   <view class='memberRightsView'>
-    <image class="memberRightsIconImage" src='../Images/icon_memberRights@2x.png' mode="aspectFit"></image>
+    <image class="memberRightsIconImage" src='../Images/icon_memberRights@2x.png'></image>
     <view class="memberContentView">
       <view class="memberRightsTitleView" bindtap='onShowMemberRightsView'>会员权益</view>
-      <image class="memberLineImage" src='../Images/icon_line@2x.png' mode="aspectFit"></image>
+      <image class="memberLineImage" src='../Images/icon_line@2x.png'></image>
       <view class='memberDiscountView'>
         <view class="memberDiscounTextView">
           <text class="memberDiscounTextTitle">会员折扣</text>
           <text class='memberDiscounTextValue'>- ￥{{filter.numberToFix(orderDetail.order.discountPrice)}}</text>
+        </view>
+        <view class="memberDiscounTextView">
+          <text class="memberDiscounTextTitle">优惠券折扣</text>
+          <text class='memberDiscounTextValue'>- ￥{{filter.numberToFix(orderDetail.order.cashCouponPrice)}}</text>
         </view>
         <view class="memberDiscounTextView">
           <text class="memberDiscounTextTitle">储值抵扣</text>
@@ -69,7 +73,7 @@
       <view class="storeTitleView">
         <text class='storeInfoTitle'>线下服务点</text>
       </view>
-      <image class="storeLineImage" src='../Images/icon_line@2x.png' mode="aspectFit"></image>
+      <image class="storeLineImage" src='../Images/icon_line@2x.png'></image>
       <view class='storeAddressInfoView'>
         <view class='storeContactInfoView'>
           <view class='storeNameView'>

@@ -17,14 +17,16 @@
       <image class="cellLine" src='../images/icon_line@2x.png'></image>
       <view class='addressBottomView'>
         <view class='defaultAddressView' bindtap='onSetDefault' data-key='{{item}}'>
-          <icon class='defaultAddressImage' type="{{item.default ? 'success' : 'circle'}}" color='#63a0d4'></icon>
+          <icon class='defaultAddressImage' type="{{item.default ? 'success' : 'circle'}}" color='#3DA8F5'></icon>
           <text class='defaultText'>{{item.default ? '默认' : '设为默认'}}</text>
         </view>
         <view class='editAddressView' bindtap='editAddress' data-key='{{item}}'>
           <image class='editAddressImage' src='../images/icon_editAddress@2x.png' mode="aspectFit"></image>
+          <text class='editTitle'>编辑</text>
         </view>
         <view class='deleteAddressView' bindtap='onDeleteAddress' data-key='{{item}}'>
           <image class='deleteAddressImage' src='../images/icon_deleteAddress@2x.png' mode="aspectFit"></image>
+          <text class='deleteTitle'>删除</text>
         </view>
       </view>
     </view>

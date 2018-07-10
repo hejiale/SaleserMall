@@ -1,11 +1,13 @@
 <import src="../../utils/Template/ProductListTemplate/ProductListTemplate.wxml" />
 <import src="Template/PropertyTemplate.wxml" />
+<import src="../../utils/Template/BackGroundTemplate/BackGroundTemplate.wxml" />
 <template is="PropertyTemplate" data="{{classList,parameterList,lowPriceStr,heighPriceStr,hasClassSelect}}" wx:if="{{showOrHide}}"></template>
+<template  is="bgTemplate"></template>
 <view class="searchContentView">
   <view class="topMenuView">
     <view class="search-input">
       <image class="search-icon" src="../images/icon_seach@2x.png" mode="aspectFit" />
-      <input class="inputSearch" placeholder="请输入您要搜索的商品" placeholder-style="font-size: 14px;color:#999999;" bindconfirm="onSearchInput" value="{{keyWord}}" confirm-type='search' />
+      <input class="inputSearch" placeholder="请输入您要搜索的商品" placeholder-style="font-size: 14px;color:#999999;" bindconfirm="onSearchInput" value="{{keyWord}}" confirm-type='search'/>
     </view>
     <view class="searchRightView" bindtap='onClassClicked'>
       <image class='filter-icon' src='../images/icon_filterClass@2x.png' mode="aspectFit"></image>
@@ -14,7 +16,7 @@
   <view class="hotSearchView" wx:if="{{isShowSearchView}}">
     <view class="hotSearchTopView">
       <text class="hotTitle">最近搜索</text>
-      <text style="font-size: 12px;color: #999999;margin-right: 0px;width: 80px;text-align: center;" bindtap="onClearHistoryWords">清空</text>
+      <text style="font-size: 12px;color: #999999;margin-right: 12px;width: 80px;text-align: right;" bindtap="onClearHistoryWords">清空</text>
     </view>
     <view class="hotItemView">
       <block wx:for-items="{{historySearchWords}}">
@@ -24,11 +26,14 @@
       </block>
     </view>
   </view>
-  <scroll-view scroll-y="true" class="productListView {{isShowProductList}}" bindscrolltolower="onLoadMore" lower-threshold='100' scroll-top="{{scrollTop}}" style='height:{{scrollHeight}}px;'>
+  <scroll-view scroll-y="true" class="productListView {{isShowProductList}}" bindscrolltolower="onLoadMore" lower-threshold='100' scroll-top="{{scrollTop}}" style='height:{{scrollHeight}}px;' wx:if="{{allProductList.length > 0}}">
     <block wx:for-items="{{allProductList}}">
       <template is='normalLayOut' data="{{item,doubleLayoutHeight}}"></template>
     </block>
     <wxc-loadmore wx:if="{{isEndLoad}}" is-end="{{true}}" text="到底啦" _pid="{{_pid}}">
     </wxc-loadmore>
   </scroll-view>
+  <view class='emptyView' wx:elif="{{isEmpty}}">
+    <image class='emptyImage' src='../images/noneProduct@2x.png'></image>
+  </view>
 </view>

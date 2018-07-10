@@ -1,5 +1,8 @@
+@import "template/CompanyTemplate.wxss";
 @import "template/ClassTemplate.wxss";
 @import "../../utils/Template/ProductListTemplate/ProductListTemplate.wxss";
+@import "../../utils/Template/BackGroundTemplate/BackGroundTemplate.wxss";
+
 
 .contentView {
   position: fixed;
@@ -8,7 +11,7 @@
   align-items: center;
   top: 0px;
   width: 100%;
-  z-index: 800;
+  z-index: 1000; 
 }
 
 .search-input-view {
@@ -37,7 +40,7 @@
   height: 30rpx;
 }
 
-.inputSearch {
+.showSearch {
   margin-left: 5px;
   height: 20px;
   font-size: 14px;
@@ -49,14 +52,32 @@
   display: flex;
   flex-direction: row;
   align-items: center;
+  justify-content: space-between;
   width: 100%;
   height: 50px;
   background-color: white;
 }
 
+.chooseTitle {
+  margin-left: 10px;
+  font-size: 13px;
+  color: #333;
+  font-weight: 500;
+}
+
 .scroll-view-x {
   width: calc(100% - 50px);
   height: 40px;
+}
+
+.closeCoverView {
+  display: flex;
+  align-items: center;
+  margin-left: 5px;
+  width: calc(100% - 50px);
+  height: 36px;
+  padding-top: 5px;
+  padding-bottom: 10px;
 }
 
 .hengxiangul {
@@ -100,44 +121,13 @@
 
 .templateContentView {
   position: relative;
-  left: 0px;
   width: 100%;
-}
-
-.templateSessionView {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-}
-
-.templateTitleView {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  background-color: white;
-}
-
-.templateMainTitle {
-  font-size: 24px;
-  text-align: center;
-  margin-top: 18px;
-  width: 100%;
-  font-weight: 500;
-}
-
-.templateSubTitle {
-  font-size: 14px;
-  text-align: center;
-  margin-top: 8px;
-  width: 100%;
-  color: #999;
-  padding-bottom: 18px;
 }
 
 .productListView {
   position: relative;
-  margin-top: 5px;
   width: calc(100% - 5px);
+  height: 100%;
 }
 
 .emptyCartView {
@@ -147,7 +137,6 @@
   justify-content: center;
   width: 100%;
   height: calc(100% - 45px);
-  background-color: white;
 }
 
 .emptyImage {
@@ -185,4 +174,8 @@
   width: 1px;
   height: 29px;
 }
-
+/* 
+.swiperView{
+  width: 100%;
+  height: 750px;
+} */

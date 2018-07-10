@@ -1,4 +1,5 @@
 @import "Template/ParameterTemplate.wxss";
+@import "../../utils/Template/BackGroundTemplate/BackGroundTemplate.wxss";
 
 .tryGlassView {
   display: flex;
@@ -20,10 +21,11 @@
   display: flex;
   flex-direction: column;
   width: 100%;
-  height: 100%;
+  padding-bottom: 50px;
 }
 
 .swiper_box {
+  margin-top: 5px;
   width: 100%;
   background-color: white;
 }
@@ -33,7 +35,7 @@
   height: 100%;
 }
 
-.productInfo {
+.productInfo {  
   margin-top: 5px;
   display: flex;
   flex-direction: column;
@@ -54,7 +56,7 @@
 
 .priceText {
   margin-top: 10px;
-  margin-left: 20px;
+  margin-left: 17px;
   font-size: 20px;
   font-weight: 500;
 }
@@ -66,7 +68,6 @@
   background-color: white;
   margin-top: 5px;
   width: 100%;
-  padding-bottom: 50px;
 }
 
 .specificationTitleView {
@@ -104,7 +105,6 @@
 }
 
 .FrameView {
-  margin-top: 20px;
   width: 100%;
 }
 
@@ -131,7 +131,6 @@
 }
 
 .webView {
-  margin-top: 5px;
   width: 100%;
   background-color: white;
 }
@@ -145,6 +144,7 @@
   width: 100%;
   height: 50px;
   background-color: white;
+  border-top: 1rpx solid #e6e6e6;
 }
 
 .leftBottomView {
@@ -156,18 +156,12 @@
   height: 100%;
 }
 
-.cartBottomView{
+.cartBottomView {
   display: flex;
   justify-content: center;
   align-items: center;
   flex: 1;
-  width: 32px;
   height: 100%;
-}
-
-.cartImage {
-  width: 32px;
-  height: 22px;
 }
 
 .phoneImage {
@@ -177,6 +171,29 @@
   border-right: 1px solid #dcdcdc;
 }
 
+.cartImage {
+  width: 32px;
+  height: 22px;
+}
+
+.cs_button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex: 1;
+  background-color: #fff;
+  height: 100%;
+}
+
+.cs_button:after {
+  border: 0px;
+}
+
+.cs_image {
+  width: 32px;
+  height: 22px;
+}
+
 .addCartButton {
   display: flex;
   justify-content: center;
@@ -184,11 +201,11 @@
   margin-left: 10px;
   width: 30%;
   height: 36px;
-  border: 1px solid #63a0d4;
+  border: 1px solid #3DA8F5;
   border-radius: 3px;
 }
 
-.cornerMarkView{
+.cornerMarkView {
   position: absolute;
   width: 18px;
   height: 18px;
@@ -209,7 +226,7 @@
   margin-left: 10px;
   width: 30%;
   height: 36px;
-  background-color: #63a0d4;
+  background-color: #3DA8F5;
   border-radius: 3px;
 }
 
@@ -220,7 +237,25 @@
 
 .addCartText {
   font-size: 14px;
-  color: #63a0d4;
+  color: #3DA8F5;
+  text-align: center;
+}
+
+.noneAblePayView{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-left: 10px;
+  width: calc(60% + 10px);
+  height: 36px;
+  background-color: #3DA8F5;
+  border-radius: 3px;
+  opacity: 0.4;
+}
+
+.noneAblePayText{
+  font-size: 14px;
+  color: white;
   text-align: center;
 }
 
@@ -229,7 +264,7 @@
   height: 40px;
 }
 
-.HomeMenu{
+.HomeMenu {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -243,8 +278,7 @@
   border-radius: 22px;
 }
 
-.HomeMenuImage{
+.HomeMenuImage {
   width: 29px;
   height: 24px;
 }
-

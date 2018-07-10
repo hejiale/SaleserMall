@@ -1,10 +1,12 @@
 @import "../../utils/Template/ProductListTemplate/ProductListTemplate.wxss";
 @import "Template/PropertyTemplate.wxss";
+@import "../../utils/Template/BackGroundTemplate/BackGroundTemplate.wxss";
 
 .searchContentView {
   display: flex;
   flex-direction: column;
   width: 100%;
+  position: absolute;
 }
 
 .inputSearch {
@@ -94,7 +96,6 @@
   top: 0px;
   width: 100%;
   height: 45px;
-  background-color: #f5f5f5;
   z-index: 600;
 }
 
@@ -131,5 +132,21 @@
 .productListView {
   margin-top: 45px;
   width: calc(100% - 5px);
+}
+
+.emptyView{
+  position: fixed;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  top: 45px;
+  left: 0px;
+  width: 100%;
+  height: calc(100% - 45px);
+}
+
+.emptyImage{
+  width: 111px;
+  height: 123px;
 }
 

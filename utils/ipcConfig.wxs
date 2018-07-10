@@ -23,8 +23,9 @@ var filter = {
       }
       return value;
     }
-  }
+  }  
 }
+
 
 module.exports = {
   numberToFix: filter.numberToFix

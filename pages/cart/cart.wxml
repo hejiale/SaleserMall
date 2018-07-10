@@ -1,5 +1,8 @@
 <wxs module="filter" src="../../utils/ipcConfig.wxs"></wxs>
+<import src="../../utils/Template/BackGroundTemplate/BackGroundTemplate.wxml" />
 <view class="page">
+  <template is="bgTemplate"></template>
+  <template is="topSpaceTemplate"></template>
   <view class='topView'>
     <view class='titleView'>
       <text class='topText'>商品列表</text>
@@ -26,16 +29,18 @@
                 <view class='shelvesImage' wx:elif="{{item.code == 305}}" style='color: #FF4848;border: 1px solid #FF4848;'>库存不足</view>
               </view>
               <view class='editCartNumView'>
-                <image class='reduceCartImage' src='../images/icon_reduceCart@2x.png' mode="aspectFit" bindtap='onReduce' data-key="{{item}}"></image>
-                <text class='cartNumText'>{{item.shoppingCart.count}}</text>
-                <image class='reduceCartImage' src='../images/icon_plusCart@2x.png' mode="aspectFit" bindtap='onCrease' data-key="{{item}}"></image>
+                <image class='editCartButton' src='../images/stepper_decrease@2x.png' catchtap='onReduce' mode="aspectFit" data-key="{{item}}"></image>
+                <view class='cartNumInputView'>
+                  <text class='cartNumText'>{{item.shoppingCart.count}}</text>
+                </view>
+                <image class='editCartButton' src='../images/stepper_increase@2x.png' catchtap='onCrease' data-key="{{item}}" mode="aspectFit"></image>
               </view>
             </view>
           </view>
         </view>
         <view class="unOpenView" wx:else data-key="{{item}}">
           <view class="onSelectView" bindtap='onSelectCart' data-key='{{item}}'>
-            <icon class='iconSelectedImage' type="{{item.selected ? 'success' : 'circle'}}" color='#63a0d4'></icon>
+            <icon class='iconSelectedImage' type="{{item.selected ? 'success' : 'circle'}}" color='#3DA8F5'></icon>
           </view>
           <view class='cartView'>
             <view class='productImageView'>

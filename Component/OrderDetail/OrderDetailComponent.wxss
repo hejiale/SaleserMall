@@ -1,7 +1,7 @@
 /* Component/OrderDetailComponent.wxss */
 
 .scrollView {
-  margin: 0px;
+  position: relative;
   width: 100%;
 }
 
@@ -55,7 +55,7 @@
 }
 
 .pickUpGoodsImage {
-  width: 20px;
+  width: 23px;
   height: 20px;
 }
 
@@ -124,16 +124,17 @@
 .productContentView {
   display: flex;
   flex-flow: column;
-  margin-top: 5px;
   width: 100%;
+  background-color: white;
 }
 
 .productView {
   display: flex;
+  margin-top: 1px;
   width: 100%;
   height: 84px;
   align-items: center;
-  background-color: white;
+  background-color: #fafafa;
 }
 
 .productImage {
@@ -151,7 +152,7 @@
 
 .productNameText {
   font-size: 16px;
-  width: 100%;
+  width: calc(100% -20px);
   white-space: nowrap;
   text-overflow: ellipsis;
   overflow: hidden;
@@ -159,8 +160,8 @@
 }
 
 .specificationsText {
-  font-size: 13px;
-  color: #999999;
+  font-size: 12px;
+  color: #666;
   height: 25px;
   line-height: 25px;
   text-overflow: ellipsis;
@@ -176,14 +177,15 @@
 }
 
 .numText {
-  font-size: 14px;
+  font-size: 12px;
   text-align: right;
   color: #666666;
 }
 
 .price {
   font-size: 14px;
-  color: #666666;
+  color: #222;
+  font-weight: 500;
 }
 
 .shouldPayAmountView {
@@ -213,15 +215,13 @@
 
 .memberRightsView {
   display: flex;
-  margin-top: 5px;
   width: 100%;
-  height: 167px;
   background-color: white;
 }
 
 .shouldPayIconImage {
   margin-left: 10px;
-  width: 21px;
+  width: 23px;
   height: 20px;
 }
 
@@ -235,8 +235,7 @@
 .memberContentView {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  margin-left: 8px;
+  margin-left: 10px;
   width: calc(100% - 35px);
   height: 100%;
 }
@@ -278,7 +277,8 @@
   margin-right: 10px;
   font-size: 14px;
   text-align: right;
-  color: #999;
+  color: #222;
+  font-weight: 500;
 }
 
 .memberDiscounTextTitle {
@@ -303,8 +303,7 @@
 .storeContentView {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  margin-left: 8px;
+  margin-left: 10px;
   width: calc(100% - 35px);
 }
 
@@ -405,6 +404,7 @@
   height: 50px;
   bottom: 0px;
   background-color: white;
+  border-top: 1rpx solid #e6e6e6;
 }
 
 .cancelButton{
@@ -412,10 +412,14 @@
   width: 25%;
   height: 36px;
   line-height: 36px;
-  border: 1px solid #4D9FD8;
-  color: #4D9FD8;
+  border: 1px solid #3DA8F5;
+  color: #3DA8F5;
   font-size: 15px;
   background-color: white;
+}
+
+.cancelButton::after{
+  border: none;
 }
 
 .surePayButton{
@@ -423,8 +427,12 @@
   height: 36px;
   line-height: 36px;
   color: white;
-  background-color: #4D9FD8;
+  background-color: #3DA8F5;
   font-size: 15px;
+}
+
+.surePayButton::after{
+  border: none;
 }
 
 .deliveryButton{
@@ -433,7 +441,7 @@
   height: 36px;
   line-height: 36px;
   color: white;
-  background-color: #4D9FD8;
+  background-color: #3DA8F5;
   font-size: 15px;
 }
 

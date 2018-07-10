@@ -1,5 +1,4 @@
-var HostURL = 'https://icepointcloud.com';
-
+var app = getApp();
 //端口
 var port = '/wechat/api/mall';
 var sessionId = null;
@@ -24,7 +23,7 @@ function login(options, callBack) {
       typeof callBack == "function" && callBack(data)
     }).catch(e => {
 
-    })
+  })
 }
 
 //校验登录情况
@@ -42,17 +41,19 @@ function valityLoginStatus(callBack) {
       typeof callBack == "function" && callBack(data)
     }).catch(e => {
 
-    })
+  })
 }
 
 
 //获取公司信息
-function getCompanyInfo(options, callBack) {
+function getCompanyInfo(callBack) {
   var that = this;
 
   let msg = {
-    data: options,
-    url: port + '/getCompanyInfo',
+    data: {
+      miniAppId: app.globalData.miniAppId
+    },
+    url: port + '/getWeChatAccountInfo',
     method: 'GET'
   }
 
@@ -61,7 +62,25 @@ function getCompanyInfo(options, callBack) {
       typeof callBack == "function" && callBack(data)
     }).catch(e => {
 
-    })
+  })
+}
+
+//获取公司首页类目
+function getCompanyClass(options, callBack) {
+  var that = this;
+
+  let msg = {
+    data: options,
+    url: port + '/getWechatAccountDefaultNavigation',
+    method: 'GET'
+  }
+
+  http(msg).then(
+    data => {
+      typeof callBack == "function" && callBack(data)
+    }).catch(e => {
+
+  })
 }
 
 //获取公司首页模板
@@ -79,7 +98,7 @@ function getCompanyTemplate(options, callBack) {
       typeof callBack == "function" && callBack(data)
     }).catch(e => {
 
-    })
+  })
 }
 
 //获取专场详情
@@ -97,7 +116,7 @@ function getTemplateDetail(options, callBack) {
       typeof callBack == "function" && callBack(data)
     }).catch(e => {
 
-    })
+  })
 }
 
 //验证手机验证码并绑定手机号
@@ -116,7 +135,7 @@ function verityPhoneCode(options, callBack) {
       typeof callBack == "function" && callBack(data)
     }).catch(e => {
 
-    })
+  })
 }
 
 //发送验证码
@@ -135,7 +154,7 @@ function sendVerityCode(options, callBack) {
       typeof callBack == "function" && callBack(data)
     }).catch(e => {
 
-    })
+  })
 }
 
 
@@ -154,7 +173,7 @@ function getMemberInfo(callBack) {
       typeof callBack == "function" && callBack(data)
     }).catch(e => {
 
-    })
+  })
 }
 
 //微信支付预付款
@@ -172,7 +191,7 @@ function wechatPayOrder(options, callBack) {
       typeof callBack == "function" && callBack(data)
     }).catch(e => {
 
-    })
+  })
 }
 
 //微信付款后操作
@@ -190,7 +209,7 @@ function wechatCompletePayOrder(options, callBack) {
       typeof callBack == "function" && callBack(data)
     }).catch(e => {
 
-    })
+  })
 }
 
 //微信付款后操作
@@ -208,7 +227,7 @@ function wechatCancelPayOrder(options, callBack) {
       typeof callBack == "function" && callBack(data)
     }).catch(e => {
 
-    })
+  })
 }
 
 
@@ -227,7 +246,7 @@ function queryProductList(options, callBack) {
       typeof callBack == "function" && callBack(data)
     }).catch(e => {
 
-    })
+  })
 }
 
 //查询商品分类信息
@@ -245,7 +264,7 @@ function queryProductCategory(options, callBack) {
       typeof callBack == "function" && callBack(data)
     }).catch(e => {
 
-    })
+  })
 }
 
 //查询商品不同类目参数信息
@@ -263,7 +282,7 @@ function queryCategoryParameter(options, callBack) {
       typeof callBack == "function" && callBack(data)
     }).catch(e => {
 
-    })
+  })
 }
 
 
@@ -282,7 +301,25 @@ function queryProductDetail(options, callBack) {
       typeof callBack == "function" && callBack(data)
     }).catch(e => {
 
-    })
+  })
+}
+
+//查询商品
+function queryProductDetailRemark(options, callBack) {
+  var that = this;
+
+  let msg = {
+    data: options,
+    url: port + '/goods/textDetail',
+    method: 'GET'
+  }
+
+  http(msg).then(
+    data => {
+      typeof callBack == "function" && callBack(data)
+    }).catch(e => {
+
+  })
 }
 
 //查询商品详情规格
@@ -300,7 +337,7 @@ function queryProductDetailParameter(parameterJson, callBack) {
       typeof callBack == "function" && callBack(data)
     }).catch(e => {
 
-    })
+  })
 }
 
 //添加购物车
@@ -319,7 +356,7 @@ function addShoppingCart(options, callBack) {
       typeof callBack == "function" && callBack(data)
     }).catch(e => {
 
-    })
+  })
 }
 
 //查询购物车列表
@@ -337,7 +374,7 @@ function queryCartList(callBack) {
       typeof callBack == "function" && callBack(data)
     }).catch(e => {
 
-    })
+  })
 }
 
 //查询购物车数量
@@ -355,7 +392,7 @@ function queryCartCount(callBack) {
       typeof callBack == "function" && callBack(data)
     }).catch(e => {
 
-    })
+  })
 }
 
 //修改购物车数量
@@ -373,7 +410,7 @@ function updateCart(options, callBack) {
       typeof callBack == "function" && callBack(data)
     }).catch(e => {
 
-    })
+  })
 }
 
 //删除购物车商品
@@ -391,7 +428,7 @@ function deleteCart(options, callBack) {
       typeof callBack == "function" && callBack(data)
     }).catch(e => {
 
-    })
+  })
 }
 
 //清空购物车
@@ -409,7 +446,7 @@ function clearCart(callBack) {
       typeof callBack == "function" && callBack(data)
     }).catch(e => {
 
-    })
+  })
 }
 
 //验证购物车库存数量
@@ -428,7 +465,7 @@ function valityCartStock(options, callBack) {
       typeof callBack == "function" && callBack(data)
     }).catch(e => {
 
-    })
+  })
 }
 
 
@@ -448,7 +485,7 @@ function queryStoreList(options, callBack) {
       typeof callBack == "function" && callBack(data)
     }).catch(e => {
 
-    })
+  })
 }
 
 //查询地址列表
@@ -467,7 +504,7 @@ function queryAddressList(options, callBack) {
       typeof callBack == "function" && callBack(data)
     }).catch(e => {
 
-    })
+  })
 }
 
 //新增地址
@@ -486,7 +523,7 @@ function saveAddress(options, callBack) {
       typeof callBack == "function" && callBack(data)
     }).catch(e => {
 
-    })
+  })
 }
 
 //删除地址
@@ -504,7 +541,7 @@ function deleteAddress(options, callBack) {
       typeof callBack == "function" && callBack(data)
     }).catch(e => {
 
-    })
+  })
 }
 
 //设置默认地址
@@ -522,7 +559,7 @@ function setDefaultAddress(options, callBack) {
       typeof callBack == "function" && callBack(data)
     }).catch(e => {
 
-    })
+  })
 }
 
 //获取默认地址
@@ -540,7 +577,7 @@ function getDefaultAddress(callBack) {
       typeof callBack == "function" && callBack(data)
     }).catch(e => {
 
-    })
+  })
 }
 
 //获取地址详情
@@ -558,7 +595,7 @@ function getDetailAddress(options, callBack) {
       typeof callBack == "function" && callBack(data)
     }).catch(e => {
 
-    })
+  })
 }
 
 //下单
@@ -577,7 +614,7 @@ function payOrder(options, callBack) {
       typeof callBack == "function" && callBack(data)
     }).catch(e => {
 
-    })
+  })
 }
 
 //修改订单状态 (取消订单、确认收货)
@@ -596,7 +633,7 @@ function updateOrderStatus(options, callBack) {
       typeof callBack == "function" && callBack(data)
     }).catch(e => {
 
-    })
+  })
 }
 
 //订单列表
@@ -615,7 +652,7 @@ function queryOrderList(options, callBack) {
       typeof callBack == "function" && callBack(data)
     }).catch(e => {
 
-    })
+  })
 }
 
 //查询订单详情
@@ -634,7 +671,7 @@ function queryOrderDetail(options, callBack) {
       typeof callBack == "function" && callBack(data)
     }).catch(e => {
 
-    })
+  })
 }
 
 //查看提货方式配置
@@ -652,7 +689,26 @@ function queryPickupStatus(callBack) {
       typeof callBack == "function" && callBack(data)
     }).catch(e => {
 
-    })
+  })
+}
+
+//查询卡券
+function queryMemberCard(options, callBack) {
+  var that = this;
+
+  let msg = {
+    url: port + '/coupon/getCashCouponForCustomerMember',
+    data: options,
+    method: 'POST',
+    sessionId: 'JSESSIONID=' + that.sessionId
+  }
+
+  http(msg).then(
+    data => {
+      typeof callBack == "function" && callBack(data)
+    }).catch(e => {
+
+  })
 }
 
 
@@ -668,13 +724,20 @@ function http(msg) {
 
   return new Promise((resolve, reject) => {
     wx.request({
-      url: HostURL + msg.url,
+      url: app.globalData.HostURL + msg.url,
       data: msg.data,
       header: header,
       method: msg.method,
-      success: function (res) {
+      success: function(res) {
         if (res.statusCode == 200 && res != null) {
-          resolve(res.data);
+          if (res.data.retCode != 400) {
+            resolve(res.data);
+          } else {
+            wx.showToast({
+              title: res.data.retMsg,
+              icon: 'none'
+            })
+          }
           console.log(res);
         } else {
           wx.showToast({
@@ -683,41 +746,7 @@ function http(msg) {
           })
         }
       },
-      fail: function (res) {
-        reject(res);
-      }
-    })
-  })
-}
-
-//测试localHost后台请求
-function localHttp(msg) {
-  var header = {
-    'content-type': 'application/json'
-  };
-
-  if (msg.sessionId != null) {
-    header.Cookie = msg.sessionId;
-  }
-
-  return new Promise((resolve, reject) => {
-    wx.request({
-      url: LocalHostURL + msg.url,
-      data: msg.data,
-      header: header,
-      method: msg.method,
-      success: function (res) {
-        if (res.statusCode == 200 && res != null) {
-          resolve(res.data);
-          console.log(res);
-        } else {
-          wx.showToast({
-            title: '服务器繁忙，请重试',
-            icon: 'none'
-          })
-        }
-      },
-      fail: function (res) {
+      fail: function(res) {
         reject(res);
       }
     })
@@ -730,6 +759,7 @@ module.exports = {
   valityLoginStatus: valityLoginStatus,
   getCompanyInfo: getCompanyInfo,
   getMemberInfo: getMemberInfo,
+  getCompanyClass: getCompanyClass,
   getCompanyTemplate: getCompanyTemplate,
   getTemplateDetail: getTemplateDetail,
   payOrder: payOrder,
@@ -741,6 +771,7 @@ module.exports = {
   queryProductCategory: queryProductCategory,
   queryCategoryParameter: queryCategoryParameter,
   queryProductDetail: queryProductDetail,
+  queryProductDetailRemark: queryProductDetailRemark,
   queryProductDetailParameter: queryProductDetailParameter,
   addShoppingCart: addShoppingCart,
   queryCartList: queryCartList,
@@ -762,7 +793,6 @@ module.exports = {
   verityPhoneCode: verityPhoneCode,
   sendVerityCode: sendVerityCode,
   queryPickupStatus: queryPickupStatus,
-  queryCartCount: queryCartCount
+  queryCartCount: queryCartCount,
+  queryMemberCard: queryMemberCard
 }
-
-

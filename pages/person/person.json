@@ -1,1 +1,6 @@
-{"navigationBarTitleText":"个人中心"}
+{
+  "usingComponents": {
+    "LoginComponent": "../../Component/Login/LoginComponent"
+  },
+  "component": true
+}
