@@ -5,6 +5,7 @@ App({
   },
   onShow: function () {
     this.globalData.isRequireLoad = true;
+    wx.clearStorage()
   },
   onHide: function () {
     console.log('hide');
